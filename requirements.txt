@@ -1,0 +1,8 @@
+ipykernel
+numpy
+pandas
+opencv-python
+ipywidgets
+tensorflow[and-cuda]
+tf-keras
+deepface
