@@ -11,7 +11,7 @@ Facial Recognition with Emotion & Liveness
 3. Activate the environment:
 
 Linux: `source .venv/bin/activate`
-Windows: `(idk)`
+Windows: `.\.venv\Scripts\Activate.ps1`
 
 4. Run `pip install -r requirements.txt`
 
