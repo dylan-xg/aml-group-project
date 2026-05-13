@@ -5,11 +5,13 @@ from pathlib import Path
 from typing import Any, TypeAlias
 
 import cv2 as cv
-import ipywidgets as widgets
 import numpy as np
+
+import ipywidgets as widgets
 from IPython.display import display
 
 
+# This probably isn't needed since everything is in its own module now.
 class VideoProcessor:
 
 	@dataclass
@@ -103,8 +105,7 @@ class VideoProcessor:
 	@staticmethod
 	def process_video(
 		capture_location: int | str | Path,
-		/,
-		callback: FrameCallbackType = lambda x: x,
+		callback: FrameCallbackType,
 		*,
 		display_config: DisplayConfig | None = None,
 		frametime: float = 1.0 / 30.0
