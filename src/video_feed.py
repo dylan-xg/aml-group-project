@@ -1,3 +1,18 @@
+"""Provides the VideoProcessor class, which handles video input and video display.
+
+Example
+-------
+>>> from video_feed import VideoProcessor
+>>> WEBCAM_SOURCE = 0
+>>> def detect_face(frame): ...
+>>> VideoProcessor.process_video(
+... 	capture_location=WEBCAM_SOURCE,
+... 	callback=detect_face,
+... 	display_config=DisplayOption_Headless()
+... 	frametime=1/25
+... )
+"""
+
 import time
 from collections.abc import Callable
 from dataclasses import dataclass
@@ -13,6 +28,10 @@ from IPython.display import display
 
 # This probably isn't needed since everything is in its own module now.
 class VideoProcessor:
+	"""Stateless container class for processing a video feed.
+
+	See :func:`process_video` to get started.
+	"""
 
 	@dataclass
 	class DisplayConfig:
@@ -42,7 +61,10 @@ class VideoProcessor:
 		display_option: DisplayConfig,
 		frame: cv.typing.MatLike
 	) -> bool:
-		"""Will attempt to display an output based on the display option."""
+		"""Will attempt to display an output based on the display option.
+
+		Private function, should not be called directly.
+		"""
 
 		match display_option:
 			case VideoProcessor.DisplayOption_Jupyter(image_widget=image_widget):
@@ -69,7 +91,10 @@ class VideoProcessor:
 		display_option: DisplayConfig,
 		frametime: float
 	) -> bool:
-		"""This function is called continuously until either the video ends, or is interrupted."""
+		"""This function is called continuously until either the video ends, or is interrupted.
+
+		Private function, should not be called directly.
+		"""
 
 		start_time: float = time.time()
 
@@ -110,20 +135,34 @@ class VideoProcessor:
 		display_config: DisplayConfig | None = None,
 		frametime: float = 1.0 / 30.0
 	) -> None:
-		"""Read from a video input and apply the callback to it.
+		"""Read from a video input and apply the callback to it, then optionally display it.
 
-		Args:
-			capture_location (int | str | Path): What the video source is.
-				- For a webcam input, use an int.
-				- For a video file, use a str or Path.
-			callback (FrameCallbackType: Callable[[cv.typing.MatLike], cv.typing.MatLike | None]): Function that will be called with each frame.
-			frametime (float): In seconds, how long between each frame. Use 1 / fps if you want to pass in a framerate.
-			display_type (DisplayType): Whether to output the frames, and if so, how should it be shown. Options:
-				- Jupyter Notebook.
-				- Qt window via OpenCV.
+		Args
+		----
+		capture_location : int | str | Path
+			What the video source is.
 
-		Returns:
-			None:
+			- For a webcam input, use an `int`, 0 is the default webcam.
+			- For a video file, pass in a file location either as `str` or `Path` (preferred).
+
+		callback : :func:`FrameCallbackType`
+			A function that will be called every frame with every frame.
+
+			The callback function should be [`(frame) -> frame | None`].
+
+		display_config : :func:`DisplayConfig`, optional
+			Whether to output the frames, and if so, how should it be shown.
+
+			The options are:
+
+			- `DisplayOption_Headless`: No display.
+			- `DisplayOption_Jupyter`: Jupyter Notebook display using widgets.
+			- `DisplayOption_OpenCV`: Native OpenCV display option, creates a window using Qt.
+
+			If no value or `None` is passed, defaults to `DisplayOption_Jupyter`.
+
+		frametime : float, default=1.0/30.0
+			In seconds, how long between each frame. Use `1 / fps` if you want to pass in a framerate.
 		"""
 
 		# Null sentinel
