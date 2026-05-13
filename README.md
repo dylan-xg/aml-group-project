@@ -15,6 +15,6 @@ Facial Recognition with Emotion & Liveness
 
 4. Run `pip install -r requirements.txt`
 
-- You may also need to do `run: pip install --upgrade pip`
+- You may also need to do `pip install --upgrade pip`
 
 5. (If using notebook) Select the virtual environment as the kernel.
