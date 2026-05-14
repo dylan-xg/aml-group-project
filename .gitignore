@@ -5,6 +5,9 @@
 # Environment variables file
 .env
 
+# Visual studio code's folder
+.vscode/
+
 # Automatically compiled python files
 __pycache__/
 
