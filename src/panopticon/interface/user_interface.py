@@ -8,7 +8,7 @@ import cv2 as cv
 import pandas as pd
 import tkinter as tk
 from deepface import DeepFace
-from video_feed import VideoProcessor
+from src.panopticon.video_processor import DisplayConfig, VideoFeed
 
 
 DB_PATH = Path('data/faces_db')
@@ -50,10 +50,10 @@ class FaceRecognitionController:
 		state = FaceRecognitionController.create_state()
 
 		try:
-			VideoProcessor.process_video(
+			VideoFeed.process_video(
 				capture_location=VIDEO_SOURCE,
 				callback=lambda frame: FaceRecognitionController.video_callback(state, frame),
-				frametime=1 / 15
+				display_config=DisplayConfig.OpenCV(frametime=1 / 15)
 			)
 
 		finally:
