@@ -51,7 +51,7 @@ class FaceRecognitionController:
 
 		try:
 			VideoProcessor.process_video(
-				VIDEO_SOURCE,
+				capture_location=VIDEO_SOURCE,
 				callback=lambda frame: FaceRecognitionController.video_callback(state, frame),
 				frametime=1 / 15
 			)
@@ -137,7 +137,7 @@ class FaceRecognitionController:
 
 		try:
 			search_path = DB_PATH / "_current_search.jpg"
-			cv.imwrite(str(search_path), state.current_frame)
+			cv.imwrite(str(search_path), state.current_frame) # type: ignore
 
 			dfs = DeepFace.search(
 				img=str(search_path),
@@ -262,7 +262,7 @@ class FaceRecognitionController:
 		timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 		image_path = person_folder / (timestamp + ".jpg")
 
-		cv.imwrite(str(image_path), state.current_frame)
+		cv.imwrite(str(image_path), state.current_frame) # type: ignore
 
 		return image_path
 
