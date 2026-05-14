@@ -6,3 +6,4 @@ ipywidgets
 tensorflow[and-cuda]
 tf-keras
 deepface
+pytest
