@@ -1,0 +1,47 @@
+How to integrate your own model:
+
+1. A good name, just any string.
+
+You will place it here:
+code: CUSTOM_MODEL = YOUR MODEL'S NAME HERE
+
+IMPORTANT: if you change this name later, old PostgreSQL records will not match anymore, because the database stores the model name used when the embeddings were created.
+
+2. The model loading file
+Just a .keras file, should output a embedding vector.
+
+3. Thresholds, these will be the cutoffs in distance scores when it either will recognise someone or not.
+
+FORMAT:
+dict[str, Any]
+EXAMPLE:
+"Facenet": {"cosine": 0.40, "euclidean": 10, "euclidean_l2": 0.80, "angular": 0.33}
+HINT: You can change the distance metric.
+code: DISTANCE_METRIC = 'euclidean_l2'
+
+4. Confidences, a bunch of stuff.
+
+w: slope, how much distance differences matter in confidence.
+b: bias, how many distances are in yes v. no.
+normalizer: keeps distance values within a certain range.
+denorm_max_true: max confidence for a match.
+denorm_min_true: minimum confidence for a match.
+denorm_max_false: maximum confidence for a non-match.
+denorm_min_false: minimum confidence for a non-match.
+
+FORMAT:
+dict[str, dict[str, dict[str, float]]]
+
+EXAMPLE:
+    "VGG-Face": {
+        "cosine": {
+            "w": -6.61254026479904,
+            "b": 3.145549102667549,
+            "normalizer": 0.979183,
+            "denorm_max_true": 88.28484099529868,
+            "denorm_min_true": 20.787978733113846,
+            "denorm_max_false": 20.556681914175016,
+            "denorm_min_false": 3.457832575746455,
+        }
+
+5. The custom_normalize_input is just for preprocessing the frame the same way your model expects.
