@@ -1,3 +1,17 @@
+# Python virtual environment folder
+# add you own if you use a different name
 .venv/
+
+# Environment variables file
 .env
+
+# Automatically compiled python files
 __pycache__/
+
+# Don't push the datasets onto the github
+/data/datasets/**
+# Add a link to them for others to download locally in this file
+!/data/datasets/list.md
+
+# Contains pre-recorded videos
+/data/videos/
