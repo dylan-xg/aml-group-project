@@ -42,9 +42,7 @@ def _display_video(
 
 			widget.value = buffer.tobytes()
 
-		case DisplayConfig.OpenCV:
-			# BUG doesn't work
-			print('Frame should be displayed')
+		case DisplayConfig.OpenCV():
 			cv.imshow(winname='frame', mat=frame)
 
 		case _: # DisplayConfig.Headless:
@@ -83,6 +81,7 @@ def _frame_loop(
 
 	match display_option:
 		case DisplayConfig.OpenCV(frametime=ft):
+			# Frametime is in seconds, waitKey expects milliseconds
 			if cv.waitKey(delay=int(ft * 1000)) == ord('q'):
 				return _END_LOOP
 
@@ -170,3 +169,9 @@ def process_video(
 
 	finally:
 		vid_cap.release()
+
+		match display_config:
+			case DisplayConfig.OpenCV():
+				cv.destroyAllWindows()
+			case _:
+				pass
