@@ -18,7 +18,7 @@ from deepface.modules.verification import thresholds
 from deepface.modules.verification import confidences
 from keras.models import load_model
 
-from .panopticon.video_processor import DisplayConfig, VideoFeed
+from panopticon import video_processor as VP
 
 
 # ============================================================
@@ -176,10 +176,10 @@ class FaceRecognitionController:
 	def run(VIDEO_SOURCE: int | str | Path) -> None:
 		state = FaceRecognitionController.create_state()
 		try:
-			VideoFeed.process_video(
+			VP.process_video(
 				capture_location=VIDEO_SOURCE,
 				callback=lambda frame: FaceRecognitionController.video_callback(state, frame),
-				display_config=DisplayConfig.OpenCV(frametime=1 / 15)
+				display_config=VP.DisplayConfig.OpenCV(frametime=1 / 15)
 			)
 
 		finally:

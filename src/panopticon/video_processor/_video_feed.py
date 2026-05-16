@@ -11,8 +11,8 @@ import numpy.typing as npt
 from IPython.display import display
 
 from ..typing import Frame
-from . import DisplayConfig
-from .DisplayConfig import DisplayConfigType as ConfigType
+from . import _display_config as DisplayConfig
+from ._display_config import DisplayConfigType as ConfigType
 
 
 FrameCallback: TypeAlias = Callable[[Frame], Frame | None]
