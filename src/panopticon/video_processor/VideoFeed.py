@@ -23,7 +23,8 @@ _GO_AGAIN = True
 
 def _display_video(
 	display_option: ConfigType,
-	frame: Frame
+	frame: Frame,
+	verbosity: int
 ) -> bool:
 	"""Will attempt to display an output based on the display option.
 
@@ -37,7 +38,7 @@ def _display_video(
 			ret, buffer = cv.imencode(ext='.jpg', img=frame)
 
 			if not ret:
-				print("Can't encode frame as image. Exiting ...")
+				if verbosity > 0: print("Can't encode frame as image. Exiting ...")
 				return _END_LOOP
 
 			widget.value = buffer.tobytes()
@@ -55,6 +56,7 @@ def _frame_loop(
 	vid_cap: cv.VideoCapture,
 	callback: FrameCallback | None,
 	display_option: ConfigType,
+	verbosity: int
 ) -> bool:
 	"""This function is called continuously until either the video ends, or is interrupted.
 
@@ -68,7 +70,7 @@ def _frame_loop(
 	ret, frame = vid_cap.read()
 
 	if not ret:
-		print("Can't receive frame (stream end?). Exiting ...")
+		if verbosity > 0: print("Can't receive frame (stream end?). Exiting ...")
 		return _END_LOOP
 
 	frame_result: Frame | None = callback(frame) if callback is not None else None
@@ -76,7 +78,8 @@ def _frame_loop(
 
 	if not _display_video(
 		display_option=display_option,
-		frame=frame_result
+		frame=frame_result,
+		verbosity=verbosity
 	): return _END_LOOP
 
 	match display_option:
@@ -100,7 +103,9 @@ def _frame_loop(
 def process_video(
 	capture_location: int | str | Path,
 	callback: FrameCallback | None = None,
-	display_config: ConfigType | None = None
+	display_config: ConfigType | None = None,
+	*,
+	verbosity: int = 0
 ) -> None:
 	"""Read from a video input and apply the callback to it, then optionally display it.
 
@@ -129,6 +134,9 @@ def process_video(
 		- :func:`DisplayConfig.Jupyter`: Jupyter Notebook display using widgets.
 
 		If no value or `None` is passed, defaults :func:`DisplayConfig.Headless`.
+
+	verbosity : int, optional
+		Scales how much information should be output. Used for debugging.
 	"""
 
 	# === Input sanitisation ===
@@ -147,7 +155,7 @@ def process_video(
 	vid_cap = cv.VideoCapture(capture_location)
 
 	if not vid_cap.isOpened():
-		print('Cannot open video source.')
+		if verbosity > 0: print('Cannot open video source.')
 		return
 
 	# Null sentinel
@@ -161,11 +169,12 @@ def process_video(
 		while _frame_loop(
 			vid_cap=vid_cap,
 			callback=callback,
-			display_option=display_config
+			display_option=display_config,
+			verbosity=verbosity
 		): pass
 
 	except KeyboardInterrupt:
-		print('Video stream interrupted.')
+		if verbosity > 0: print('Video stream interrupted.')
 
 	finally:
 		vid_cap.release()
