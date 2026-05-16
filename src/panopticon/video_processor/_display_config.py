@@ -27,9 +27,14 @@ class OpenCV:
 	frametime : float, default=1.0/30.0
 		In seconds, how long between each frame. Use `1 / fps` if you want to pass in a framerate.
 	"""
+
 	frametime: float
 
-	def __init__(self, frametime: float = 1.0 / 30.0) -> None:
+	def __init__(
+		self,
+		*,
+		frametime: float = 1.0 / 30.0
+	) -> None:
 		self.frametime = frametime
 
 
@@ -40,12 +45,29 @@ class Jupyter:
 
 	Args
 	----
-	format : Literal['jpeg'] | Literal['png']
+	frametime : float, default=1.0/30.0
+		In seconds, how long between each frame. Use `1 / fps` if you want to pass in a framerate.
+
+	format : Literal['jpeg'] | Literal['png'], default='jpeg'
 		What image format to convert the frame to.
 
 		Note: JPEG is faster than PNG
 
-	frametime : float, default=1.0/30.0
+	"""
+
+	frametime: float
+	image_widget: _widgets.Image
+
+	def __init__(
+		self,
+		*,
+		frametime: float = 1/30,
+		format: _Literal['jpeg'] | _Literal['png'] = 'jpeg',
+	) -> None:
+		self.frametime = frametime
+		self.image_widget = _widgets.Image(format=format)
+
+
 		In seconds, how long between each frame. Use `1 / fps` if you want to pass in a framerate.
 	"""
 	image_widget: _widgets.Image

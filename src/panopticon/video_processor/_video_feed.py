@@ -1,22 +1,17 @@
 """Provides a collection of functions for video input and video display."""
 
-import time
-from collections.abc import Callable
-from typing import TypeAlias
-from pathlib import Path
+import time as _time
+from pathlib import Path as _Path
 
-import cv2 as cv
-import numpy as np
-import numpy.typing as npt
-from IPython.display import display
+import cv2 as _cv
+import numpy as _np
+import numpy.typing as _npt
+from IPython.display import display as _display
 
-from ..typing import Frame
+from ..typing import Frame, ProcessFrameCallback
 from . import _display_config as DisplayConfig
 from ._display_config import DisplayConfigType as ConfigType
 
-
-FrameCallback: TypeAlias = Callable[[Frame], Frame | None]
-"""The callback function type."""
 
 _END_LOOP = False
 _GO_AGAIN = True
@@ -34,8 +29,8 @@ def _display_video(
 	match display_option:
 		case DisplayConfig.Jupyter(image_widget=widget):
 			ret: bool
-			buffer: npt.NDArray[np.uint8]
-			ret, buffer = cv.imencode(ext='.jpg', img=frame)
+			buffer: _npt.NDArray[_np.uint8]
+			ret, buffer = _cv.imencode(ext='.jpg', img=frame)
 
 			if not ret:
 				if verbosity > 0: print("Can't encode frame as image. Exiting ...")
@@ -44,7 +39,7 @@ def _display_video(
 			widget.value = buffer.tobytes()
 
 		case DisplayConfig.OpenCV():
-			cv.imshow(winname='frame', mat=frame)
+			_cv.imshow(winname='frame', mat=frame)
 
 		case _: # DisplayConfig.Headless:
 			pass
@@ -53,8 +48,8 @@ def _display_video(
 
 
 def _frame_loop(
-	vid_cap: cv.VideoCapture,
-	callback: FrameCallback | None,
+	vid_cap: _cv.VideoCapture,
+	callback: ProcessFrameCallback | None,
 	display_option: ConfigType,
 	verbosity: int
 ) -> bool:
@@ -63,7 +58,7 @@ def _frame_loop(
 	Private function, should not be called directly.
 	"""
 
-	start_time: float = time.time()
+	start_time: float = _time.time()
 
 	ret: bool
 	frame: Frame
@@ -85,14 +80,14 @@ def _frame_loop(
 	match display_option:
 		case DisplayConfig.OpenCV(frametime=ft):
 			# Frametime is in seconds, waitKey expects milliseconds
-			if cv.waitKey(delay=int(ft * 1000)) == ord('q'):
+			if _cv.waitKey(delay=int(ft * 1000)) == ord('q'):
 				return _END_LOOP
 
 		case DisplayConfig.Jupyter(frametime=ft):
 			# Enforce the framerate pacing
-			elapsed_time: float = time.time() - start_time
+			elapsed_time: float = _time.time() - start_time
 			time_to_wait: float = ft - elapsed_time
-			if time_to_wait > 0: time.sleep(time_to_wait)
+			if time_to_wait > 0: _time.sleep(time_to_wait)
 
 		case _: # DisplayConfig.Headless:
 			pass
@@ -101,8 +96,8 @@ def _frame_loop(
 
 
 def process_video(
-	capture_location: int | str | Path,
-	callback: FrameCallback | None = None,
+	capture_location: int | str | _Path,
+	callback: ProcessFrameCallback | None = None,
 	display_config: ConfigType | None = None,
 	*,
 	verbosity: int = 0
@@ -117,14 +112,16 @@ def process_video(
 		- For a webcam input, use an `int`, 0 is the default webcam.
 		- For a video file, pass in a file location either as `str` or `Path` (preferred).
 
-	callback : :func:`FrameCallback`, optional
-		A function that will be called every frame with every frame.
+	callback : :func:`ProcessFrameCallback`, optional
+		A function that will be called every frame with every :func:`Frame`.
 
-		:func:`FrameCallback` = `(Frame) -> Frame | None`.
+		This function can return a :func:`Frame` which will be used for display if enabled.
+
+		:func:`ProcessFrameCallback` = `(Frame) -> Frame | None`.
 
 		:func:`Frame` = `cv.typing.MatLike`
 
-	display_config : :func:`DisplayConfig.ConfigType`, optional
+	display_config : :func:`DisplayConfigType`, optional
 		Whether to output the frames, and if so, how should it be shown.
 
 		The options are:
@@ -147,12 +144,12 @@ def process_video(
 	else: # Filepath input
 		# Convert string to Path object for easier operation.
 		if isinstance(capture_location, str):
-			capture_location = Path(capture_location)
+			capture_location = _Path(capture_location)
 
 		if not capture_location.exists():
 			raise FileNotFoundError('No file was found at this location.')
 
-	vid_cap = cv.VideoCapture(capture_location)
+	vid_cap = _cv.VideoCapture(capture_location)
 
 	if not vid_cap.isOpened():
 		if verbosity > 0: print('Cannot open video source.')
@@ -163,7 +160,7 @@ def process_video(
 		display_config = DisplayConfig.Headless()
 
 	if isinstance(display_config, DisplayConfig.Jupyter):
-		display(display_config.image_widget)
+		_display(display_config.image_widget)
 
 	try:
 		while _frame_loop(
@@ -181,6 +178,6 @@ def process_video(
 
 		match display_config:
 			case DisplayConfig.OpenCV():
-				cv.destroyAllWindows()
+				_cv.destroyAllWindows()
 			case _:
 				pass
