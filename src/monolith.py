@@ -4,10 +4,10 @@ import time
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
+import tkinter as tk
 
 import cv2 as cv
 import pandas as pd
-import tkinter as tk
 from deepface import DeepFace
 from deepface.modules import preprocessing
 from deepface.modules.exceptions import FaceNotDetected
@@ -18,7 +18,7 @@ from deepface.modules.verification import thresholds
 from deepface.modules.verification import confidences
 from keras.models import load_model
 
-from ..video_processor import DisplayConfig, VideoFeed
+from .panopticon.video_processor import DisplayConfig, VideoFeed
 
 
 # ============================================================
