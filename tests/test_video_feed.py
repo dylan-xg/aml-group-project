@@ -7,7 +7,7 @@ import pytest
 from src.panopticon.video_processor import DisplayConfig, VideoFeed
 
 
-VIDEO_PATH = Path('data/videos/example.mp4')
+VIDEO_PATH = Path('data/testing/example.mp4')
 NEVER_PATH = Path('a/a/a/a/a/a/aa/a/a/aa/a/a/a/a/a/a/a/a/a/a/a')
 
 def test_example_video():
