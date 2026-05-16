@@ -41,7 +41,9 @@ class Jupyter:
 	Args
 	----
 	format : Literal['jpeg'] | Literal['png']
-		JPEG is faster than PNG
+		What image format to convert the frame to.
+
+		Note: JPEG is faster than PNG
 
 	frametime : float, default=1.0/30.0
 		In seconds, how long between each frame. Use `1 / fps` if you want to pass in a framerate.
