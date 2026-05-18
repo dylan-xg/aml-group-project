@@ -9,7 +9,7 @@ from deepface.modules.verification import thresholds, confidences
 from keras.models import load_model
 
 from settings import *
-from . import FaceRecognitionController
+from .controller import FaceRecognitionController
 
 # ============================================================
 # Custom DeepFace Runtime Extension
@@ -91,4 +91,4 @@ DeepFace.build_index(RECOGNITION_MODEL)
 
 print("This could take a minute, give it time...")
 print("Use the Q key to exit the application.")
-FaceRecognitionController.run(VIDEO_SOURCE)
+FaceRecognitionController().run(VIDEO_SOURCE=VIDEO_SOURCE)
