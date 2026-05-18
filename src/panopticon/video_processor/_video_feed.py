@@ -42,7 +42,7 @@ class VideoFeed:
 		capture_location: int | str | _Path,
 		callback: ProcessFrameCallback | None = None,
 		frametime: float = 1.0 / 30.0
-	):
+	) -> None:
 		# === Input sanitisation ===
 
 		if isinstance(capture_location, int): # Webcam input
