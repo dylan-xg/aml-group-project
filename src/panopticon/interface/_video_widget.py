@@ -2,52 +2,44 @@
 
 import tkinter as _tk
 from tkinter import ttk as _ttk
-from pathlib import Path as _Path
 from PIL.Image import fromarray as _np2pil
 from PIL.ImageTk import PhotoImage as _Image
 import cv2 as _cv
 
 from ..typing import Frame
+from ..video_processor import VideoFeed
+
 
 class VideoWidget:
 	def __init__(
 		self,
 		parent_frame: _ttk.Frame,
-		test_path: _Path
+		video_feed: VideoFeed
 	) -> None:
 		self.parent: _ttk.Frame = parent_frame
 
 		# Access the root window through the parent frame.
-		self.root = self.parent.winfo_toplevel()
+		top_level: _tk.Tk | _tk.Toplevel = self.parent.winfo_toplevel()
+		if isinstance(top_level, _tk.Toplevel): raise ValueError
+		self.root: _tk.Tk = top_level
 
-		if not test_path.exists():
-			raise FileNotFoundError('No file was found at this location.')
-
-		self.vid = _cv.VideoCapture(test_path)
-
-		if not self.vid.isOpened():
-			print(f'Failed to open video file: {test_path}')
-			self.root.quit()
-			return
+		self.video_feed: VideoFeed = video_feed
 
 		# Initialise with the requested width and height of the parent frame.
-
 		self.target_width: int = self.parent.winfo_width()
 		self.target_height: int = self.parent.winfo_height()
-		#self.target_width: int = self.parent.cget('width') or 800
-		#self.target_height: int = self.parent.cget('height') or 600
 
-		self.label_widget = _ttk.Label(self.parent)
+		self.label_widget = _ttk.Label(master=self.parent)
 		# Expand the label to fill the parent frame.
 		self.label_widget.pack(expand=True, fill=_tk.BOTH)
 
-		self.current_image = None
+		self.current_image: _Image | None = None
 
 		# Bind the configure event to detect when the frame changes size
-		self.parent.bind('<Configure>', self.on_resize)
+		self.parent.bind(sequence='<Configure>', func=self.on_resize)
 
 
-	def on_resize(self, event):
+	def on_resize(self, event) -> None:
 		# Update target dimensions based on the new size of the parent frame.
 		# We ensure dimensions do not drop below 1 to prevent _cv.resize errors.
 		self.target_width = max(1, event.width)
@@ -55,7 +47,10 @@ class VideoWidget:
 
 
 	def _resize_frame(self, frame: Frame) -> Frame:
+		"""Resize the provided frame to the available space."""
 		# Retrieve original video dimensions
+		orig_height: int
+		orig_width: int
 		orig_height, orig_width = frame.shape[:2]
 
 		# Calculate scaling factor to fit within the target dimensions
@@ -70,22 +65,19 @@ class VideoWidget:
 			raise ValueError('Cannot resize to a side length of 0 or less')
 
 		# Resize proportionally
-		return _cv.resize(frame, (new_width, new_height))
+		return _cv.resize(src=frame, dsize=(new_width, new_height))
 
 
-	def update_frame(self):
-		ret: bool
-		frame: Frame
-		ret, frame = self.vid.read()
+	def update_frame(self) -> None:
+		try:
+			frame: Frame = self.video_feed.process_frame()
+		except ValueError:
+			return
 
-		if not ret: return
+		frame = self._resize_frame(frame=frame)
 
-		frame: Frame = self._resize_frame(frame)
-
-		opencv_image = _cv.cvtColor(frame, _cv.COLOR_BGR2RGBA)
-
-		self.current_image = _Image(image=_np2pil(opencv_image))
+		self.current_image = _Image(image=_np2pil(obj=frame))
 		self.label_widget.configure(image=self.current_image)
 
-		FRAMETIME_MS = 1000 // 60
-		self.root.after(FRAMETIME_MS, self.update_frame)
+		FRAMETIME_MS: int = int(self.video_feed.frametime * 1000)
+		self.root.after(ms=FRAMETIME_MS, func=self.update_frame)

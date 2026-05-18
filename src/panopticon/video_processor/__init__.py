@@ -19,11 +19,15 @@ Example
 #	DisplayConfigType as DisplayConfigType
 #)
 
+from ._video_feed import (
+	VideoFeed as VideoFeed,
+	process_video as process_video
+)
+
 from . import _display_config as DisplayConfig
 
-from ._video_feed import process_video as process_video
-
 __all__: list[str] = [
+	'VideoFeed',
 	'DisplayConfig',
 	'process_video'
 ]

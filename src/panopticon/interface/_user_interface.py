@@ -72,10 +72,10 @@ class UserInterface:
 		)
 
 
-	def add_feed(self, video_feed: VideoWidget, /) -> None:
-		self.start_button.configure(command=video_feed.update_frame)
+	def add_feed(self, video_widget: VideoWidget, /) -> None:
+		self.start_button.configure(command=video_widget.update_frame)
 		self.restart_button.configure(
-			command=lambda: video_feed.vid.set(
+			command=lambda: video_widget.video_feed.vid_cap.set(
 				propId=cv.CAP_PROP_POS_FRAMES,
 				value=0
 			)
@@ -84,29 +84,3 @@ class UserInterface:
 
 	def start(self) -> None:
 		self.window.mainloop()
-
-
-# python -m src.panopticon.interface._user_interface
-if __name__ == '__main__':
-	from pathlib import Path
-
-	VID_PATH = Path('data/testing/example.mp4')
-
-	if not VID_PATH.exists():
-		print(f'File not found: {VID_PATH}')
-		quit()
-
-	app = UserInterface(
-		width=800,
-		height=600,
-		title='Test Window'
-	)
-
-	app.add_feed(
-		VideoWidget(
-			parent_frame=app.video_container,
-			test_path=VID_PATH
-		)
-	)
-
-	app.start()
