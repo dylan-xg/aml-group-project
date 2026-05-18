@@ -1,174 +1,16 @@
 
-import os
-import time
-from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 import tkinter as tk
+import time
 
 import cv2 as cv
-import pandas as pd
 from deepface import DeepFace
-from deepface.modules import preprocessing
-from deepface.modules.exceptions import FaceNotDetected
-from deepface.modules import modeling
-from deepface.models.FacialRecognition import FacialRecognition
-from deepface.models.facial_recognition.Facenet import (load_facenet128d_model) #LEGACY, for testing if the issue is your model file.
-from deepface.modules.verification import thresholds
-from deepface.modules.verification import confidences
-from keras.models import load_model
+import pandas as pd
 
-from panopticon import video_processor as VP
-
-
-# ============================================================
-# Custom DeepFace Runtime Extension
-
-CUSTOM_MODEL = "MyModel" #YOUR MODEL'S NAME HERE, could be anything
-
-def load_my_custom_model():
-
-	model = load_model("my_model.keras") #put your .keras model file here
-
-	return model
-
-class NewModelClient(FacialRecognition):
-
-	def __init__(self) -> None:
-
-		self.model = load_my_custom_model()
-
-		self.model_name = CUSTOM_MODEL
-
-		self.input_shape = self.model.input_shape[1:3]
-
-		self.output_shape = self.model.output_shape[-1]
-
-		type(self.model)
-
-
-modeling.AVAILABLE_MODELS["facial_recognition"][CUSTOM_MODEL] = NewModelClient #adding your model name to the avaliable model list in the right category, facial recognition
-
-thresholds[CUSTOM_MODEL] = thresholds["Facenet"] #just here because i cloned facenet to test the code, format: (variable) thresholds: dict[str, Any]
-
-confidences[CUSTOM_MODEL] = confidences["Facenet"] #just here because i cloned facenet to test the code, format: (variable) confidences: dict[str, dict[str, dict[str, float]]]
-
-
-original_normalize_input = preprocessing.normalize_input
-
-
-def custom_normalize_input(img, normalization="base"):
-
-	if normalization == CUSTOM_MODEL:
-
-		# your custom normalization logic, change for each model
-		mean, std = img.mean(), img.std()
-		img = (img - mean) / std
-
-		#do anything you want within these comments ^
-		return img
-
-	return original_normalize_input(img=img,normalization=normalization)
-
-preprocessing.normalize_input = custom_normalize_input
-
-# ============================================================
-
-
-PRERECORDING_PATH = Path('data/recording.avi')
-
-if 'SSH_CLIENT' in os.environ:
-	print('Remote session detected. Using video file.')
-	VIDEO_SOURCE = PRERECORDING_PATH
-else:
-	print('Local session detected. Using live webcam.')
-	VIDEO_SOURCE = 0
-
-# Make sure to start the postgresql daemon
-os.environ['DEEPFACE_POSTGRES_URI'] = 'postgresql://postgres:PASSWORD@localhost:5432/deepface' ##CHANGED LINE TO BE MY DB, WITH PASSWORD!!!
-
-RECORDING_FPS=30.0
-OUTPUT_PATH = Path('data/output.avi')
-
-RECOGNITION_MODEL = CUSTOM_MODEL
-DISTANCE_METRIC = 'euclidean_l2'
-
-DB_PATH = Path('data/faces_db')
-IMAGE1_PATH = Path('data/faces_db/RealName/YOUR_IMAGE1.jpg') #CHANGED TO MY NAME FOR FILE & FILE PATH
-IMAGE2_PATH = Path('data/faces_db/james/YOUR_IMAGE2.jpg') #CHANGED TO MY NAME FOR FILE & FILE PATH
-IMAGE3_PATH = Path('data/faces_db/james/YOUR_IMAGE3.jpg') #CHANGED TO MY NAME FOR FILE & FILE PATH
-IMAGE2_PATH = IMAGE1_PATH #remove these if you want
-IMAGE3_PATH = IMAGE1_PATH #same as above
-
-DeepFace.build_model(RECOGNITION_MODEL)
-
-
-def convert_path_to_string(path: Path, /) -> str:
-	# There is a strong temptation to turn this into a single statement, but it would compromise readability.
-	all_suffixes = ''.join(path.suffixes)
-	base_name = path.name.removesuffix(all_suffixes)
-	return '_'.join(path.parts[:-1] + (base_name,))
-
-	# Alternative that does looping stuff
-	#while path.suffix:
-	#	path = path.with_suffix('')
-	#return '_'.join(path.parts)
-
-
-def register(
-	path: Path | list[Path],
-	/,
-	model: str = RECOGNITION_MODEL
-) -> int:
-	if not isinstance(path, list):
-		path = [path]
-
-	sum = 0
-
-	for p in path:
-		result: dict[str, int] = DeepFace.register(
-			img=str(p),
-			img_name=convert_path_to_string(p),
-			model_name=model,
-			normalization=model,
-			enforce_detection=False #changed
-		)
-		sum += result['inserted']
-
-
-	return sum
-
-
-DeepFace.build_index(RECOGNITION_MODEL)
-
-
-#IF VIDEO DOES NOT DISPLAY SET recognition_enabled TO FALSE
-@dataclass
-class FaceRecognitionState:
-	window: tk.Tk
-	name_entry: tk.Entry
-	status_text: tk.StringVar
-
-	current_frame: cv.typing.MatLike | None = None
-
-	recognition_enabled: bool = True #TO SEE ANY ISSUES DEEPFACE MIGHT BE CAUSING
-	last_match_name: str | None = None
-	last_match_confidence: float | None = None
-	last_unknown: bool = False
-
-	registration_required: bool = False
-
-	liveness_enabled: bool = False
-	liveness_passed: bool = True
-
-	emotion_enabled: bool = False
-	last_emotion: str | None = None
-
-	status_message: str = "Ready"
-
-	last_recognition_time: float = 0.0
-	recognition_interval: float = 1.5 #YOU MIGHT HAVE TO RAISE THIS IF CPU IS SLOW, VIDEO WILL NOT APPEAR
-
+from .. import video_processor as VP
+from .face_recognition_state import FaceRecognitionState
+from .settings import *
 
 class FaceRecognitionController:
 
@@ -264,7 +106,7 @@ class FaceRecognitionController:
 		start_time = time.time()
 
 		dfs = DeepFace.search(
-			img=state.current_frame,
+			img=state.current_frame, # type: ignore
 			model_name=RECOGNITION_MODEL,
 			distance_metric=DISTANCE_METRIC,
 			normalization=RECOGNITION_MODEL,
@@ -426,8 +268,3 @@ class FaceRecognitionController:
 
 		state.last_emotion = None #IF SOMEHOW TRUE, RETURN NOTHING
 		return None
-
-
-print("This could take a minute, give it time...")
-print("Use the Q key to exit the application.")
-FaceRecognitionController.run(VIDEO_SOURCE)
