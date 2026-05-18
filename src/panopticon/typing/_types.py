@@ -10,3 +10,5 @@ Frame: _TypeAlias = _cv.typing.MatLike
 
 ProcessFrameCallback: _TypeAlias = _Callable[[Frame], Frame | None]
 """The callback function type."""
+
+FrameCallback: _TypeAlias = _Callable[[Frame], None]

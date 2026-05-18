@@ -4,11 +4,14 @@ from typing import Literal as _Literal, TypeAlias as _TypeAlias
 
 import ipywidgets as _widgets
 
+from ..typing import FrameCallback
+
 #__all__: list[str] = [x for x in dir() if not x.startswith('_')]
 __all__: list[str] = [
 	'Headless',
 	'OpenCV',
 	'Jupyter',
+	'Custom',
 	'DisplayConfigType'
 ]
 
@@ -68,19 +71,30 @@ class Jupyter:
 		self.image_widget = _widgets.Image(format=format)
 
 
+class Custom:
+	"""Allow the user to define a way to display the output.
+
+	Args
+	----
+	func : :func:`FrameCallback`
+		The custom display function.
+
+	frametime : float, optional
 		In seconds, how long between each frame. Use `1 / fps` if you want to pass in a framerate.
 	"""
-	image_widget: _widgets.Image
+
+	func: FrameCallback
 	frametime: float
 
 	def __init__(
 		self,
-		format: _Literal['jpeg'] | _Literal['png'] = 'jpeg',
+		func: FrameCallback,
+		*,
 		frametime: float = 1/30
 	) -> None:
-		self.image_widget = _widgets.Image(format=format)
 		self.frametime = frametime
+		self.func = func
 
 
-DisplayConfigType: _TypeAlias = Headless | OpenCV | Jupyter
+DisplayConfigType: _TypeAlias = Headless | OpenCV | Jupyter | Custom
 """Selector for the type of video display to use."""

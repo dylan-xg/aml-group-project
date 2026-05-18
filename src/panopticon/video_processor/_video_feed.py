@@ -27,6 +27,9 @@ def _display_video(
 	"""
 
 	match display_option:
+		case DisplayConfig.OpenCV():
+			_cv.imshow(winname='frame', mat=frame)
+
 		case DisplayConfig.Jupyter(image_widget=widget):
 			ret: bool
 			buffer: _npt.NDArray[_np.uint8]
@@ -38,8 +41,8 @@ def _display_video(
 
 			widget.value = buffer.tobytes()
 
-		case DisplayConfig.OpenCV():
-			_cv.imshow(winname='frame', mat=frame)
+		case DisplayConfig.Custom(func=display_func):
+			display_func(frame)
 
 		case _: # DisplayConfig.Headless:
 			pass
@@ -77,6 +80,11 @@ def _frame_loop(
 		verbosity=verbosity
 	): return _END_LOOP
 
+	def _wait_for(length: float, /) -> None:
+		elapsed_time: float = _time.time() - start_time
+		time_to_wait: float = length - elapsed_time
+		if time_to_wait > 0: _time.sleep(time_to_wait)
+
 	match display_option:
 		case DisplayConfig.OpenCV(frametime=ft):
 			# Frametime is in seconds, waitKey expects milliseconds
@@ -84,10 +92,10 @@ def _frame_loop(
 				return _END_LOOP
 
 		case DisplayConfig.Jupyter(frametime=ft):
-			# Enforce the framerate pacing
-			elapsed_time: float = _time.time() - start_time
-			time_to_wait: float = ft - elapsed_time
-			if time_to_wait > 0: _time.sleep(time_to_wait)
+			_wait_for(ft)
+
+		case DisplayConfig.Custom(frametime=ft):
+			_wait_for(ft)
 
 		case _: # DisplayConfig.Headless:
 			pass
