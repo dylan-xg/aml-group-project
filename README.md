@@ -18,3 +18,5 @@ Facial Recognition with Emotion & Liveness
 - You may also need to do `pip install --upgrade pip`
 
 5. (If using notebook) Select the virtual environment as the kernel.
+
+6. Create a `.env` file. Add the values required by [`settings.py`](src/panopticon/settings.py) to it

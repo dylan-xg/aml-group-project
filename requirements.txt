@@ -7,3 +7,4 @@ tensorflow[and-cuda]
 tf-keras
 deepface
 pytest
+pydantic-settings
