@@ -9,7 +9,7 @@ from deepface.modules.verification import thresholds, confidences
 from keras.models import load_model
 
 from settings import *
-from .face_recognition_controller import FaceRecognitionController
+from . import FaceRecognitionController
 
 # ============================================================
 # Custom DeepFace Runtime Extension
