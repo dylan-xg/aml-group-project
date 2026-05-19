@@ -16,8 +16,9 @@ endif
 init:
 	python -m venv .venv
 	$(ACTIVATE_CMD)
-	pip install --upgrade pip
-	pip install -r requirements.txt
+	pip install -r requirements.txt --upgrade pip
 
+.ONESHELL:
 install:
-	pip install -r requirements.txt
+	$(ACTIVATE_CMD)
+	pip install -r requirements.txt --upgrade pip
