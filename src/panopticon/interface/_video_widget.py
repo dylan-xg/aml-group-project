@@ -106,7 +106,11 @@ class VideoWidget:
 		frame = self._resize_frame(frame=frame)
 
 		# Convert to correct type and apply.
-		self.current_image = _Image(image=_np2pil(obj=frame))
+		self.current_image = _Image(
+			image=_np2pil(
+				obj=_cv.cvtColor(src=frame, code=_cv.COLOR_BGR2RGB)
+			)
+		)
 		self.label_widget.configure(image=self.current_image)
 
 		FRAMETIME_MS: int = int(self.video_feed.frametime * 1000)
