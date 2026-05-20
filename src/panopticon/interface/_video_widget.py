@@ -7,7 +7,7 @@ from PIL.ImageTk import PhotoImage as _Image
 import cv2 as _cv
 
 from ..typing import Frame
-from ..video_processor import VideoFeed
+from ..video_feed import VideoFeed
 
 
 class VideoWidget:

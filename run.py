@@ -4,7 +4,7 @@ import cv2 as cv
 from src.panopticon.settings import SETTINGS
 from src.panopticon.typing import Frame
 from src.panopticon.interface import UserInterface, VideoWidget
-from src.panopticon.video_processor import VideoFeed
+from src.panopticon.video_feed import VideoFeed
 
 
 def demonstrate_callback(frame: Frame) -> Frame:

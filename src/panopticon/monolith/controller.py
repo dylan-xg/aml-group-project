@@ -8,7 +8,7 @@ import cv2 as cv
 from deepface import DeepFace
 import pandas as pd
 
-from .. import video_processor as VP
+from .. import video_feed as VideoFeed
 from .settings import *
 from ..typing import Frame
 
@@ -65,10 +65,10 @@ class FaceRecognitionController:
 	def run(self, VIDEO_SOURCE: int | str | Path) -> None:
 
 		try:
-			VP.process_video(
+			VideoFeed.process_video(
 				capture_location=VIDEO_SOURCE,
 				callback=lambda frame: self.video_callback(frame),
-				display_config=VP.DisplayConfig.OpenCV(frametime=1 / 15)
+				display_config=VideoFeed.DisplayConfig.OpenCV(frametime=1 / 15)
 			)
 
 		finally:
