@@ -62,11 +62,11 @@ class FaceRecognitionController:
 		self.recognition_interval: float = 1.5 #YOU MIGHT HAVE TO RAISE THIS IF CPU IS SLOW, VIDEO WILL NOT APPEAR
 
 
-	def run(self, VIDEO_SOURCE: int | str | Path) -> None:
+	def run(self, source: int | str | Path) -> None:
 
 		try:
 			VideoFeed.process_video(
-				capture_location=VIDEO_SOURCE,
+				capture_location=source,
 				callback=lambda frame: self.video_callback(frame),
 				display_config=VideoFeed.DisplayConfig.OpenCV(frametime=1 / 15)
 			)
