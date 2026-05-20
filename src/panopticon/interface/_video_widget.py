@@ -2,6 +2,7 @@
 
 import tkinter as _tk
 from tkinter import ttk as _ttk
+
 from PIL.Image import fromarray as _np2pil
 from PIL.ImageTk import PhotoImage as _Image
 import cv2 as _cv
@@ -11,6 +12,9 @@ from ..video_feed import VideoFeed
 
 
 class VideoWidget:
+
+	active: bool = False
+
 	def __init__(
 		self,
 		parent_frame: _ttk.Frame,
@@ -28,13 +32,13 @@ class VideoWidget:
 		self.target_width: int = self.parent.winfo_width()
 		self.target_height: int = self.parent.winfo_height()
 
-		self.label_widget = _ttk.Label(master=self.parent)
-		# Expand the label to fill the parent frame.
-		self.label_widget.pack(expand=True, fill=_tk.BOTH)
+		self.label_widget = _ttk.Label(master=self.parent, padding=(0,0,0,0))
+		# No need to use expand or fill options.
+		self.label_widget.pack(anchor='center')
 
 		self.current_image: _Image | None = None
 
-		# Bind the configure event to detect when the frame changes size.
+		# Bind the configure event to detect when the parent frame changes size.
 		self.parent.bind(sequence='<Configure>', func=self.on_resize)
 
 
@@ -45,6 +49,14 @@ class VideoWidget:
 		"""
 		self.target_width = event.width
 		self.target_height = event.height
+
+
+	def restart_video(self) -> None:
+		self.video_feed.vid_cap.set(
+			propId=_cv.CAP_PROP_POS_FRAMES,
+			value=0
+		)
+		self.start_playback()
 
 
 	def _resize_frame(self, frame: Frame) -> Frame:
@@ -73,12 +85,24 @@ class VideoWidget:
 		return _cv.resize(src=frame, dsize=(new_width, new_height))
 
 
-	def update_frame(self) -> None:
+	def _next_frame(self) -> None:
+		self.active = False
+		self.start_playback()
+
+	def start_playback(self) -> None:
+		# Repetitive call protection
+		if self.active: return
+		self.active = True
+
 		try:
 			frame: Frame = self.video_feed.process_frame()
 		except ValueError:
+			# When video ends, set it back to the start.
+			self.restart_video()
+			self.active = False
 			return
 
+		# BUG This only occurs while the video is playing.
 		frame = self._resize_frame(frame=frame)
 
 		# Convert to correct type and apply.
@@ -86,4 +110,4 @@ class VideoWidget:
 		self.label_widget.configure(image=self.current_image)
 
 		FRAMETIME_MS: int = int(self.video_feed.frametime * 1000)
-		self.root.after(ms=FRAMETIME_MS, func=self.update_frame)
+		self.root.after(ms=FRAMETIME_MS, func=self._next_frame)

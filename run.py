@@ -3,7 +3,7 @@ import cv2 as cv
 
 from src.panopticon.settings import SETTINGS
 from src.panopticon.typing import Frame
-from src.panopticon.interface import UserInterface, VideoWidget
+from src.panopticon.interface import UserInterface
 from src.panopticon.video_feed import VideoFeed
 
 
@@ -13,14 +13,9 @@ if not SETTINGS.TESTING_VID:
 if not SETTINGS.TESTING_VID.exists():
 	raise ValueError(f'File not found: {SETTINGS.TESTING_VID}')
 
-app = UserInterface(
-	width=1000,
-	height=500,
-	title='Test Window'
-)
-
 def demonstrate_callback(frame: Frame) -> Frame:
-	return cv.flip(src=frame, flipCode=0)
+	return cv.flip(src=frame, flipCode=1)
+
 
 video_feed = VideoFeed(
 	capture_location=SETTINGS.TESTING_VID,
@@ -28,11 +23,35 @@ video_feed = VideoFeed(
 	frametime=1/60
 )
 
-app.add_feed(
-	VideoWidget(
-		parent_frame=app.video_container,
-		video_feed=video_feed
-	)
+#webcam_feed = VideoFeed(capture_location=0)
+
+app = UserInterface(
+	width=SETTINGS.WINDOW_WIDTH,
+	height=SETTINGS.WINDOW_HEIGHT,
+	title='Test Window',
+	video_feed=video_feed
 )
+
+#def load_video_feed(ui: UserInterface, /) -> None:
+#	ui.add_feed(video_feed)
+
+#def load_webcam_feed(ui: UserInterface, /) -> None:
+#	ui.add_feed(webcam_feed)
+
+#app.add_button(
+#	label='Load test video',
+#	order=0,
+#	command=lambda: load_video_feed(app)
+#)
+
+#app.add_button(
+#	label='Load webcam',
+#	order=1,
+#	command=lambda: load_webcam_feed(app)
+#)
+
+#app.add_feed(video_feed)
+
+app.add_button('Do nothing', 1000, lambda:None)
 
 app.start()

@@ -2,10 +2,11 @@
 
 import tkinter as _tk
 from tkinter import ttk as _ttk
-
-import cv2 as cv
+from typing import Callable as _Callable
 
 from ._video_widget import VideoWidget
+from ..video_feed import VideoFeed
+
 
 class UserInterface:
 	def __init__(
@@ -13,7 +14,10 @@ class UserInterface:
 		width: int,
 		height: int,
 		title: str | None = None,
+		video_feed: VideoFeed | None = None
 	) -> None:
+
+		if width < 1 or height < 1: raise ValueError('Window cannot have a side length of 0 or less')
 
 		self.window = _tk.Tk()
 
@@ -26,61 +30,61 @@ class UserInterface:
 		])
 		self.window.geometry(newGeometry=resolution)
 
-		self.mainframe = _ttk.Frame(master=self.window)
+		self.mainframe = _ttk.Frame(master=self.window, padding=(0,0,0,0))
 		self.mainframe.pack(expand=True, fill=_tk.BOTH)
 
+		# Required for resizing to work.
 		self.mainframe.rowconfigure(index=0, weight=1)
-		self.mainframe.columnconfigure(index=0, weight=8)
-		self.mainframe.columnconfigure(index=1, weight=1)
+		self.mainframe.columnconfigure(index=0, weight=1)
+		# Input panel is fixed width.
+		self.mainframe.columnconfigure(index=1, weight=0)
 
 		# Create a dedicated container frame for the video.
-		self.video_container = _ttk.Frame(master=self.mainframe)
+		self.video_container = _ttk.Frame(master=self.mainframe, padding=(0,0,0,0))
 		self.video_container.grid(row=0, column=0, sticky='news')
-
+		# This is required to allow the container to dictate the video size.
 		self.video_container.pack_propagate(flag=False)
 
-		# Create a side panel with buttons.
-		self.input_panel = _ttk.Frame(master=self.mainframe)
+		# Create a side panel for input buttons.
+		self.input_panel = _ttk.Frame(master=self.mainframe, padding=(0,0,0,0))
 		self.input_panel.grid(row=0, column=1, sticky='news')
 
-		self.input_panel.rowconfigure(index=0, weight=0)
-		self.input_panel.rowconfigure(index=1, weight=0)
-		self.input_panel.columnconfigure(index=0, weight=1)
+		if video_feed is not None:
+			self.add_feed(video_feed)
 
-		self.start_button = _ttk.Button(
+
+	def add_button(self, label: str, order: int, command: _Callable) -> _ttk.Button:
+		new_button = _ttk.Button(
 			master=self.input_panel,
-			text='Start Video'
+			text=label,
+			command=command
 		)
-		self.start_button.grid(
-			row=0,
+		new_button.grid(
+			row=order,
 			column=0,
 			sticky='news',
 			padx=5,
 			pady=5
 		)
-
-		self.restart_button = _ttk.Button(
-			master=self.input_panel,
-			text='Restart Video'
-		)
-		self.restart_button.grid(
-			row=1,
-			column=0,
-			sticky='news',
-			padx=5,
-			pady=5
-		)
+		self.input_panel.rowconfigure(index=order, weight=0)
+		return new_button
 
 
-	def add_feed(self, video_widget: VideoWidget, /) -> None:
-		self.start_button.configure(command=video_widget.update_frame)
-		self.restart_button.configure(
-			command=lambda: video_widget.video_feed.vid_cap.set(
-				propId=cv.CAP_PROP_POS_FRAMES,
-				value=0
-			)
+	def add_feed(self, video_feed: VideoFeed, /) -> None:
+		if getattr(self, 'video_widget', False): raise ValueError('Feed already added.')
+		self.video_widget = VideoWidget(self.video_container, video_feed)
+		#self.start_button = self.add_button(
+		#	label='Start Video',
+		#	order=10,
+		#	command=self.video_widget.start_playback
+		#)
+		self.restart_button = self.add_button(
+			label='Restart Video',
+			order=20,
+			command=self.video_widget.restart_video
 		)
 
 
 	def start(self) -> None:
+		self.video_widget.start_playback()
 		self.window.mainloop()

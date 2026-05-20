@@ -45,6 +45,18 @@ class _Settings(_BaseSettings):
 		`TESTING_VID='data/testing/example.mp4'`
 	"""
 
+	WINDOW_WIDTH: _Annotated[
+		int,
+		_Field(frozen=True)
+	] = 1000
+	"""The starting width of the window."""
+
+	WINDOW_HEIGHT: _Annotated[
+		int,
+		_Field(frozen=True)
+	] = 500
+	"""The starting height of the window."""
+
 # Module-level singleton pattern
 SETTINGS = _Settings()
 
