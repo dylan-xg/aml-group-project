@@ -8,8 +8,6 @@ from src.panopticon import video_processor as VP
 from src.panopticon.settings import SETTINGS
 
 
-NEVER_PATH = Path('a/a/a/a/a/a/aa/a/a/aa/a/a/a/a/a/a/a/a/a/a/a')
-
 def test_example_video():
 	if not SETTINGS.TESTING_VID:
 		raise ValueError('`TESTING_VID` setting not set.')
@@ -20,8 +18,13 @@ def test_example_video():
 	VP.process_video(capture_location=SETTINGS.TESTING_VID)
 
 def test_incorrect_path():
+	# Construct a path that does not exist
+	never_path = Path('a/')
+	while (never_path.exists()):
+		never_path = never_path / 'a/'
+
 	with pytest.raises(FileNotFoundError):
-		VP.process_video(capture_location=NEVER_PATH)
+		VP.process_video(capture_location=never_path)
 
 def test_invalid_webcam():
 	with pytest.raises(ValueError):
