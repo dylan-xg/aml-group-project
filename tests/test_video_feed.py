@@ -5,13 +5,19 @@ from pathlib import Path
 import pytest
 
 from src.panopticon import video_processor as VP
+from src.panopticon.settings import SETTINGS
 
 
-VIDEO_PATH = Path('data/testing/example.mp4')
 NEVER_PATH = Path('a/a/a/a/a/a/aa/a/a/aa/a/a/a/a/a/a/a/a/a/a/a')
 
 def test_example_video():
-	VP.process_video(capture_location=VIDEO_PATH)
+	if not SETTINGS.TESTING_VID:
+		raise ValueError('`TESTING_VID` setting not set.')
+
+	if not SETTINGS.TESTING_VID.exists():
+		raise ValueError(f'File not found: {SETTINGS.TESTING_VID}')
+
+	VP.process_video(capture_location=SETTINGS.TESTING_VID)
 
 def test_incorrect_path():
 	with pytest.raises(FileNotFoundError):

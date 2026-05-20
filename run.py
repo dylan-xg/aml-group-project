@@ -10,9 +10,11 @@ from src.panopticon.video_processor import VideoFeed
 def demonstrate_callback(frame: Frame) -> Frame:
 	return cv.flip(src=frame, flipCode=0)
 
-if not SETTINGS.TESTING_VID or not SETTINGS.TESTING_VID.exists():
-	print(f'File not found: {SETTINGS.TESTING_VID}')
-	quit()
+if not SETTINGS.TESTING_VID:
+	raise ValueError('`TESTING_VID` setting not set.')
+
+if not SETTINGS.TESTING_VID.exists():
+	raise ValueError(f'File not found: {SETTINGS.TESTING_VID}')
 
 app = UserInterface(
 	width=1000,
