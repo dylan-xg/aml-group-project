@@ -7,9 +7,6 @@ from src.panopticon.interface import UserInterface, VideoWidget
 from src.panopticon.video_feed import VideoFeed
 
 
-def demonstrate_callback(frame: Frame) -> Frame:
-	return cv.flip(src=frame, flipCode=0)
-
 if not SETTINGS.TESTING_VID:
 	raise ValueError('`TESTING_VID` setting not set.')
 
@@ -21,6 +18,9 @@ app = UserInterface(
 	height=500,
 	title='Test Window'
 )
+
+def demonstrate_callback(frame: Frame) -> Frame:
+	return cv.flip(src=frame, flipCode=0)
 
 video_feed = VideoFeed(
 	capture_location=SETTINGS.TESTING_VID,
