@@ -6,15 +6,46 @@ e.g.:
 DEEPFACE_POSTGRES_URI='postgresql://postgres:@localhost/deepface'
 """
 
-from pydantic import Field
-from pydantic_settings import BaseSettings
+from pathlib import Path as _Path
+from typing import Annotated as _Annotated
 
-class Settings(BaseSettings):
-	# You need to set this in your .env file, but it doesn't need to be loaded here.
-	#DEEPFACE_POSTGRES_URI: str = Field(default='postgresql://postgres:@localhost/deepface')
+from pydantic import Field as _Field
+from pydantic_settings import (
+	BaseSettings as _BaseSettings,
+	SettingsConfigDict as _SettingsConfigDict
+)
 
-	# To shut up the linter
-	null: bool = Field(default=False)
+
+class _Settings(_BaseSettings):
+	model_config = _SettingsConfigDict(
+		env_file='.env',
+		env_file_encoding='utf-8',
+		case_sensitive=True,
+		env_ignore_empty=True,
+		extra='ignore'
+	)
+
+	DEEPFACE_POSTGRES_URI: _Annotated[
+		str | None,
+		_Field(frozen=True)
+	] = None
+	"""This value isn't used directly, but it is needed for Deepface to work.
+
+	Example
+		`DEEPFACE_POSTGRES_URI='postgresql://postgres:@localhost/deepface'`
+	"""
+
+	TESTING_VID: _Annotated[
+		_Path | None,
+		_Field(frozen=True)
+	] = None
+	"""The path to a video using for testing.
+
+	Example
+		`TESTING_VID='data/testing/example.mp4'`
+	"""
 
 # Module-level singleton pattern
-SETTINGS = Settings()
+SETTINGS = _Settings()
+
+#if not SETTINGS.DEEPFACE_POSTGRES_URI: raise ValueError('Postgres URI not set!')
