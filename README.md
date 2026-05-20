@@ -40,3 +40,7 @@ If you prefer conda you can do it that way.
 - (If using notebook) Select the virtual environment as the kernel.
 
 - Create a `.env` file. Add the values required by [`settings.py`](src/panopticon/settings.py) to it
+
+## Usage
+
+With the virtual environment active, you can run `python run.py`.
