@@ -26,8 +26,6 @@ video_feed = VideoFeed(
 #webcam_feed = VideoFeed(capture_location=0)
 
 app = UserInterface(
-	width=SETTINGS.WINDOW_WIDTH,
-	height=SETTINGS.WINDOW_HEIGHT,
 	title='Test Window',
 	video_feed=video_feed
 )

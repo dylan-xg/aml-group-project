@@ -6,13 +6,14 @@ from typing import Callable as _Callable
 
 from ._video_widget import VideoWidget
 from ..video_feed import VideoFeed
+from ..settings import SETTINGS as _SETTINGS
 
 
 class UserInterface:
 	def __init__(
 		self,
-		width: int,
-		height: int,
+		width: int = _SETTINGS.WINDOW_WIDTH,
+		height: int = _SETTINGS.WINDOW_HEIGHT,
 		title: str | None = None,
 		video_feed: VideoFeed | None = None
 	) -> None:
