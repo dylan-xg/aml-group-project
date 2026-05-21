@@ -48,7 +48,7 @@ def register(
 	model: str = RECOGNITION_MODEL
 ) -> int:
 	if isinstance(path, Path):
-		path = [path]
+		path = (path,)
 
 	sum = 0
 
