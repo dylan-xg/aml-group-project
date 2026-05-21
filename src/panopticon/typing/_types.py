@@ -1,3 +1,4 @@
+
 from collections.abc import Callable as _Callable
 from typing import TypeAlias as _TypeAlias
 

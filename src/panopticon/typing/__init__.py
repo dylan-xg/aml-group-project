@@ -1,4 +1,4 @@
-"""Types are good."""
+"""Premade type definitions."""
 
 from ._types import (
 	Frame as Frame,
