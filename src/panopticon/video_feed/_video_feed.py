@@ -16,8 +16,8 @@ from ._display_config import DisplayConfigType as ConfigType
 class VideoFeed:
 	"""A class for storing a video input with a callback function. You can request a frame processed through the callback function.
 
-	Args
-	----
+	Parameters
+	----------
 	capture_location : int | str | Path
 		What the video source is.
 
@@ -181,8 +181,8 @@ def process_video(
 ) -> None:
 	"""Read from a video input and apply the callback to it, then optionally display it.
 
-	Args
-	----
+	Parameters
+	----------
 	capture_location : int | str | Path
 		What the video source is.
 

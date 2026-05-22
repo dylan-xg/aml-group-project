@@ -25,8 +25,8 @@ class Headless:
 class OpenCV:
 	"""Use the native OpenCV display output.
 
-	Args
-	----
+	Parameters
+	----------
 	frametime : float, default=1.0/30.0
 		In seconds, how long between each frame. Use `1 / fps` if you want to pass in a framerate.
 	"""
@@ -46,8 +46,8 @@ class Jupyter:
 
 	Allows the display to work over a remote connection.
 
-	Args
-	----
+	Parameters
+	----------
 	frametime : float, default=1.0/30.0
 		In seconds, how long between each frame. Use `1 / fps` if you want to pass in a framerate.
 
@@ -74,8 +74,8 @@ class Jupyter:
 class Custom:
 	"""Allow the user to define a way to display the output.
 
-	Args
-	----
+	Parameters
+	----------
 	func : :func:`FrameCallback`
 		The custom display function.
 
