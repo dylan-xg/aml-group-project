@@ -1,6 +1,6 @@
 
 from pathlib import Path
-from typing import Any, Literal
+from typing import Any, Iterable, Literal
 
 import cv2 as cv
 from deepface import DeepFace
@@ -43,7 +43,7 @@ def convert_path_to_string(path: Path, /) -> str:
 
 
 def register(
-	path: Path | list[Path] | tuple[Path, ...],
+	path: Path | Iterable[Path],
 	/,
 	model: str = RECOGNITION_MODEL
 ) -> int:
