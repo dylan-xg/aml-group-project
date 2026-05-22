@@ -9,7 +9,7 @@ import pandas as pd
 
 from src.panopticon.settings import SETTINGS
 from src.panopticon.typing import Frame
-from src.panopticon.interface import UserInterface
+from src.panopticon.ui import UserInterface
 from src.panopticon.video_feed import VideoFeed
 
 TESTING_VID = Path('data/testing/on_site.mp4')
