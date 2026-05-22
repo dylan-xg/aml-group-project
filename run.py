@@ -7,18 +7,12 @@ from src.panopticon.interface import UserInterface
 from src.panopticon.video_feed import VideoFeed
 
 
-if not SETTINGS.TESTING_VID:
-	raise ValueError('`TESTING_VID` setting not set.')
-
-if not SETTINGS.TESTING_VID.exists():
-	raise ValueError(f'File not found: {SETTINGS.TESTING_VID}')
-
 def demonstrate_callback(frame: Frame) -> Frame:
 	return cv.flip(src=frame, flipCode=1)
 
 
 video_feed = VideoFeed(
-	capture_location=SETTINGS.TESTING_VID,
+	capture_location=SETTINGS.input_source(),
 	callback=demonstrate_callback,
 	frametime=1/60
 )

@@ -7,7 +7,7 @@ DEEPFACE_POSTGRES_URI='postgresql://postgres:@localhost/deepface'
 """
 
 from pathlib import Path as _Path
-from typing import Annotated as _Annotated
+from typing import Annotated as _Annotated, Literal as _Literal
 
 from pydantic import Field as _Field
 from pydantic_settings import (
@@ -15,12 +15,15 @@ from pydantic_settings import (
 	SettingsConfigDict as _SettingsConfigDict
 )
 
+INPUT_TYPE_WEBCAM = _Literal['webcam']
+INPUT_TYPE_VIDEO = _Literal['video']
+
 
 class _Settings(_BaseSettings):
 	model_config = _SettingsConfigDict(
 		env_file='.env',
 		env_file_encoding='utf-8',
-		case_sensitive=True,
+		case_sensitive=False,
 		env_ignore_empty=True,
 		extra='ignore'
 	)
@@ -35,16 +38,6 @@ class _Settings(_BaseSettings):
 		`DEEPFACE_POSTGRES_URI='postgresql://postgres:@localhost/deepface'`
 	"""
 
-	TESTING_VID: _Annotated[
-		_Path | None,
-		_Field(frozen=True)
-	] = None
-	"""The path to a video using for testing.
-
-	Example
-		`TESTING_VID='data/testing/example.mp4'`
-	"""
-
 	WINDOW_WIDTH: _Annotated[
 		int,
 		_Field(frozen=True)
@@ -57,7 +50,75 @@ class _Settings(_BaseSettings):
 	] = 500
 	"""The starting height of the window."""
 
-# Module-level singleton pattern
+	INPUT_SOURCE: _Annotated[
+		INPUT_TYPE_WEBCAM | INPUT_TYPE_VIDEO,
+		_Field(frozen=True)
+	] = 'webcam'
+	"""What input source to use.
+
+	options: 'webcam', 'video'
+	"""
+
+	WEBCAM_ID: _Annotated[
+		int,
+		_Field(frozen=True)
+	] = 0
+	"""The id of the webcam used."""
+
+	TESTING_VID: _Annotated[
+		_Path | None,
+		_Field(frozen=True)
+	] = None
+	"""The path to a video using for testing.
+
+	Example
+		`TESTING_VID='data/testing/example.mp4'`
+	"""
+
+
+	def input_source(self) -> int | _Path:
+		"""Util function to parse and validate the input source.
+
+		Returns
+		-------
+		INPUT : int or Path
+			If the input source is determined to be a webcam, return the integer ID of the webcam.
+			If the input source is determined to be a video, validate that the file exists. Does not confirm the file type.
+
+		Raises
+		------
+		ValueError
+			- If an incorrect input source was somehow set.
+			- If an input video was selected but not set.
+			- If an input video was selected but set to an invalid path.
+		"""
+		if self.INPUT_SOURCE == INPUT_TYPE_WEBCAM:
+			INPUT = self.WEBCAM_ID
+		elif self.INPUT_SOURCE == INPUT_TYPE_VIDEO:
+			# Technically redundant
+			if not self.TESTING_VID:
+				raise ValueError('`TESTING_VID` setting not set.')
+			if not self.TESTING_VID.exists():
+				raise ValueError(f'File not found: {self.TESTING_VID}')
+
+			INPUT = self.TESTING_VID
+		else:
+			raise ValueError('INPUT_SOURCE somehow set to invalid value.')
+
+		return INPUT
+
+
 SETTINGS = _Settings()
+"""All of the project settings.
+
+Module level singleton pattern.
+"""
 
 #if not SETTINGS.DEEPFACE_POSTGRES_URI: raise ValueError('Postgres URI not set!')
+
+# Verify the input video if it is chosen.
+if SETTINGS.INPUT_SOURCE == INPUT_TYPE_VIDEO:
+	if not SETTINGS.TESTING_VID:
+		raise ValueError('`TESTING_VID` setting not set.')
+	if not SETTINGS.TESTING_VID.exists():
+		raise ValueError(f'File not found: {SETTINGS.TESTING_VID}')
