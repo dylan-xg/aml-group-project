@@ -4,7 +4,7 @@ from typing import Literal as _Literal, TypeAlias as _TypeAlias
 
 import ipywidgets as _widgets
 
-from ..typing import FrameCallback
+from ..typing import FrameDisplayCallback
 
 #__all__: list[str] = [x for x in dir() if not x.startswith('_')]
 __all__: list[str] = [
@@ -83,12 +83,12 @@ class Custom:
 		In seconds, how long between each frame. Use `1 / fps` if you want to pass in a framerate.
 	"""
 
-	func: FrameCallback
+	func: FrameDisplayCallback
 	frametime: float
 
 	def __init__(
 		self,
-		func: FrameCallback,
+		func: FrameDisplayCallback,
 		*,
 		frametime: float = 1/30
 	) -> None:

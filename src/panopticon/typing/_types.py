@@ -1,15 +1,15 @@
 
 from collections.abc import Callable as _Callable
-from typing import TypeAlias as _TypeAlias
+from typing import Any as _Any
 
 import cv2 as _cv
 
-#__all__: list[str] = [x for x in dir() if not x.startswith('_')]
-#__all__: list[str] = ['Frame']
 
-Frame: _TypeAlias = _cv.typing.MatLike
+type Frame = _cv.typing.MatLike
+"""A frame is a single image from a webcam or video input."""
 
-ProcessFrameCallback: _TypeAlias = _Callable[[Frame], Frame | None]
-"""The callback function type."""
+type ProcessFrameCallback = _Callable[[Frame], Frame | None]
+"""A function that is called on a frame input for processing of some kind. Can return a modified result."""
 
-FrameCallback: _TypeAlias = _Callable[[Frame], None]
+type FrameDisplayCallback = _Callable[[Frame], None]
+"""A function used for a custom frame display output."""
