@@ -2,7 +2,8 @@
 
 import tkinter as _tk
 from tkinter import ttk as _ttk
-from typing import Callable as _Callable, Iterable as _Iterable
+from collections.abc import Callable as _Callable
+from typing import Iterable as _Iterable
 
 from ..recognition import Model
 from ..settings import SETTINGS as _SETTINGS
