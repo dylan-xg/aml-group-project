@@ -1,7 +1,7 @@
 
 import cv2 as cv
 
-from src.panopticon.models import fake_load_models
+from src.panopticon.recognition import fake_load_models
 from src.panopticon.settings import SETTINGS
 from src.panopticon.typing import Frame
 from src.panopticon.ui import UserInterface

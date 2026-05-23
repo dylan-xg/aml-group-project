@@ -4,7 +4,7 @@ import tkinter as _tk
 from tkinter import ttk as _ttk
 from typing import Callable as _Callable, Iterable as _Iterable
 
-from ..models import Model
+from ..recognition import Model
 from ..settings import SETTINGS as _SETTINGS
 from ._video_widget import VideoWidget
 from ..video_feed import VideoFeed

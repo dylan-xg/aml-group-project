@@ -1,4 +1,3 @@
-# Within this folder, place your model weights in this folder.
 # We will need to discuss design decisions regarding how the model should be loaded, stored, and called for inference.
 
 from ._model import Model as Model
