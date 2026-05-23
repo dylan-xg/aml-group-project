@@ -2,6 +2,7 @@
 
 import tkinter as _tk
 from tkinter import ttk as _ttk
+from typing import Iterable as _Iterable
 
 from ..recognition import BaseModel
 from ..settings import SETTINGS
@@ -77,7 +78,7 @@ class UserInterface:
 
 	def add_models(
 		self,
-		models: set[BaseModel],
+		models: _Iterable[BaseModel],
 		order: int = 100
 	) -> None:
 		"""Add support for a collection of models."""
