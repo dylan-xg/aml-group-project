@@ -4,7 +4,7 @@ import tkinter as _tk
 from tkinter import ttk as _ttk
 
 from ..recognition import BaseModel
-from ..settings import SETTINGS as _SETTINGS
+from ..settings import SETTINGS
 from ._video_widget import VideoWidget
 from ._button import Button
 from ..video_feed import VideoFeed
@@ -13,8 +13,8 @@ from ..video_feed import VideoFeed
 class UserInterface:
 	def __init__(
 		self,
-		width: int = _SETTINGS.WINDOW_WIDTH,
-		height: int = _SETTINGS.WINDOW_HEIGHT,
+		width: int = SETTINGS.WINDOW_WIDTH,
+		height: int = SETTINGS.WINDOW_HEIGHT,
 		title: str | None = None,
 		video_feed: VideoFeed | None = None
 	) -> None:
