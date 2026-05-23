@@ -15,8 +15,8 @@ from pydantic_settings import (
 	SettingsConfigDict as _SettingsConfigDict
 )
 
-INPUT_TYPE_WEBCAM = _Literal['webcam']
-INPUT_TYPE_VIDEO = _Literal['video']
+INPUT_TYPE_WEBCAM = 'webcam'
+INPUT_TYPE_VIDEO = 'video'
 
 
 class _Settings(_BaseSettings):
@@ -51,7 +51,7 @@ class _Settings(_BaseSettings):
 	"""The starting height of the window."""
 
 	INPUT_SOURCE: _Annotated[
-		INPUT_TYPE_WEBCAM | INPUT_TYPE_VIDEO,
+		str,
 		_Field(frozen=True)
 	] = 'webcam'
 	"""What input source to use.
@@ -103,7 +103,7 @@ class _Settings(_BaseSettings):
 
 			INPUT = self.TESTING_VID
 		else:
-			raise ValueError('INPUT_SOURCE somehow set to invalid value.')
+			raise ValueError(f'INPUT_SOURCE somehow set to invalid value. {self.INPUT_SOURCE}')
 
 		return INPUT
 
