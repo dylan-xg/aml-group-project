@@ -60,4 +60,4 @@ DeepFace.build_index(RECOGNITION_MODEL)
 
 print("This could take a minute, give it time...")
 print("Use the Q key to exit the application.")
-FaceRecognitionController().run(source=VIDEO_SOURCE)
+FaceRecognitionController().run(source=0)
