@@ -2,11 +2,12 @@
 
 import tkinter as _tk
 from tkinter import ttk as _ttk
-from typing import Callable as _Callable
+from typing import Callable as _Callable, Iterable as _Iterable
 
+from ..models import Model
+from ..settings import SETTINGS as _SETTINGS
 from ._video_widget import VideoWidget
 from ..video_feed import VideoFeed
-from ..settings import SETTINGS as _SETTINGS
 
 
 class UserInterface:
@@ -54,7 +55,12 @@ class UserInterface:
 			self.add_feed(video_feed)
 
 
-	def add_button(self, label: str, order: int, command: _Callable) -> _ttk.Button:
+	def add_button(
+		self,
+		label: str,
+		order: int,
+		command: _Callable
+	) -> _ttk.Button:
 		new_button = _ttk.Button(
 			master=self.input_panel,
 			text=label,
@@ -71,7 +77,12 @@ class UserInterface:
 		return new_button
 
 
-	def add_feed(self, video_feed: VideoFeed, /) -> None:
+	def add_feed(
+		self,
+		video_feed: VideoFeed,
+		/,
+		auto_start: bool = False
+	) -> None:
 		if getattr(self, 'video_widget', False): raise ValueError('Feed already added.')
 		self.video_widget = VideoWidget(self.video_container, video_feed)
 		#self.start_button = self.add_button(
@@ -84,6 +95,25 @@ class UserInterface:
 			order=20,
 			command=self.video_widget.restart_video
 		)
+		if auto_start: self.video_widget.start_playback()
+
+
+	def add_models(
+		self,
+		models: _Iterable[Model]
+	):
+		# Need to know how each model will be structured
+
+		model_buttons = []
+
+		for i, model in enumerate(models):
+			# Only important thing to extract is the inference function
+			new_button = self.add_button(
+				label=model.name,
+				order=100 + i,
+				command=lambda:None
+			)
+			model_buttons.append(new_button)
 
 
 	def start(self) -> None:

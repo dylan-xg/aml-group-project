@@ -1,6 +1,7 @@
 
 import cv2 as cv
 
+from src.panopticon.models import fake_load_models
 from src.panopticon.settings import SETTINGS
 from src.panopticon.typing import Frame
 from src.panopticon.ui import UserInterface
@@ -44,6 +45,8 @@ app = UserInterface(
 
 #app.add_feed(video_feed)
 
-app.add_button('Do nothing', 1000, lambda:None)
+app.add_button(label='Do nothing', order=1000, command=lambda:None)
+
+app.add_models(models=fake_load_models())
 
 app.start()
