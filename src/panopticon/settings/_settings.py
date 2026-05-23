@@ -40,13 +40,13 @@ class _Settings(_BaseSettings):
 
 	WINDOW_WIDTH: _Annotated[
 		int,
-		_Field(frozen=True)
+		_Field(frozen=True, gt=1)
 	] = 1000
 	"""The starting width of the window."""
 
 	WINDOW_HEIGHT: _Annotated[
 		int,
-		_Field(frozen=True)
+		_Field(frozen=True, gt=1)
 	] = 500
 	"""The starting height of the window."""
 
@@ -61,7 +61,7 @@ class _Settings(_BaseSettings):
 
 	WEBCAM_ID: _Annotated[
 		int,
-		_Field(frozen=True)
+		_Field(frozen=True, ge=0)
 	] = 0
 	"""The id of the webcam used."""
 
@@ -76,9 +76,9 @@ class _Settings(_BaseSettings):
 	"""
 
 	FRAMERATE: _Annotated[
-		int,
-		_Field(frozen=True)
-	] = 30
+		float,
+		_Field(frozen=True, gt=0)
+	] = 30.0
 	"""The maximum framerate that is displayed.
 
 	The actual framerate will likely be lower due to peformance overhead.
