@@ -2,13 +2,22 @@
 from abc import abstractmethod as _abstractmethod
 from typing import Any as _Any, Iterable as _Iterable
 
+import keras
+
 from ..typing import Frame, ModelStateCallback
+
+
+# --- For testing ---
+IMG_LENGTH = 64
+IMG_SIZE = (IMG_LENGTH, IMG_LENGTH)
+IMG_SHAPE = IMG_SIZE + (3,)
 
 
 class BaseModel:
 	"""A representational holder class for a model."""
 	name: str
 	enabled: bool = False
+	embedding_model: keras.Model
 
 	def toggle_enabled(
 		self,
@@ -31,8 +40,26 @@ class ExampleModel(BaseModel):
 	def __init__(self, name: str) -> None:
 		self.name = name
 
+
 	def load_model(self):
-		pass
+		#preprocess_layer = keras.applications.mobilenet_v2.preprocess_input
+		#weights = keras.applications.MobileNetV2(
+		#	include_top=False,
+		#	input_shape=IMG_SHAPE
+		#)
+		weights = keras.applications.EfficientNetV2B2(
+			include_top=False,
+			input_shape=IMG_SHAPE
+		)
+		weights.trainable = False
+		globalavg_layer = keras.layers.GlobalAveragePooling2D()
+
+		inputs = keras.Input(shape=IMG_SHAPE)
+		#x: _Any = preprocess_layer(inputs)
+		x = weights(inputs, training=False)
+		latent_dim: _Any = globalavg_layer(x)
+		self.embedding_model: keras.Model = keras.Model(inputs, latent_dim)
+
 
 	def run_inference(self, frame: Frame):
 		return False

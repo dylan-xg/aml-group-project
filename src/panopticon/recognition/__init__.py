@@ -2,6 +2,7 @@
 
 from ._models import (
 	BaseModel as BaseModel,
+	ExampleModel as ExampleModel,
 	LOADED_MODELS as LOADED_MODELS,
 	run_enabled_models as run_enabled_models
 )
