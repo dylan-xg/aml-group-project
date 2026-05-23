@@ -2,12 +2,11 @@
 
 import tkinter as _tk
 from tkinter import ttk as _ttk
-from collections.abc import Callable as _Callable
-from typing import Iterable as _Iterable
 
-from ..recognition import Model
+from ..recognition import BaseModel
 from ..settings import SETTINGS as _SETTINGS
 from ._video_widget import VideoWidget
+from ._button import Button
 from ..video_feed import VideoFeed
 
 
@@ -53,29 +52,7 @@ class UserInterface:
 		self.input_panel.grid(row=0, column=1, sticky='news')
 
 		if video_feed is not None:
-			self.add_feed(video_feed)
-
-
-	def add_button(
-		self,
-		label: str,
-		order: int,
-		command: _Callable
-	) -> _ttk.Button:
-		new_button = _ttk.Button(
-			master=self.input_panel,
-			text=label,
-			command=command
-		)
-		new_button.grid(
-			row=order,
-			column=0,
-			sticky='news',
-			padx=5,
-			pady=5
-		)
-		self.input_panel.rowconfigure(index=order, weight=0)
-		return new_button
+			self.add_feed(video_feed, auto_start=True)
 
 
 	def add_feed(
@@ -85,13 +62,12 @@ class UserInterface:
 		auto_start: bool = False
 	) -> None:
 		if getattr(self, 'video_widget', False): raise ValueError('Feed already added.')
-		self.video_widget = VideoWidget(self.video_container, video_feed)
-		#self.start_button = self.add_button(
-		#	label='Start Video',
-		#	order=10,
-		#	command=self.video_widget.start_playback
-		#)
-		self.restart_button = self.add_button(
+		self.video_widget = VideoWidget(
+			parent_frame=self.video_container,
+			video_feed=video_feed
+		)
+		self.restart_button: Button = Button.simple_button(
+			input_panel=self.input_panel,
 			label='Restart Video',
 			order=20,
 			command=self.video_widget.restart_video
@@ -101,22 +77,24 @@ class UserInterface:
 
 	def add_models(
 		self,
-		models: _Iterable[Model]
-	):
-		# Need to know how each model will be structured
+		models: set[BaseModel],
+		order: int = 100
+	) -> None:
+		"""Add support for a collection of models."""
+		# Need to know how each model will be structured.
 
-		model_buttons = []
+		model_buttons: list[Button] = []
 
 		for i, model in enumerate(models):
-			# Only important thing to extract is the inference function
-			new_button = self.add_button(
+			new_button: Button = Button.complex_button(
+				input_panel=self.input_panel,
 				label=model.name,
-				order=100 + i,
-				command=lambda:None
+				order=order + i,
+				command=model.toggle_enabled
 			)
 			model_buttons.append(new_button)
+			# Only important thing to extract is the inference function.
 
 
 	def start(self) -> None:
-		self.video_widget.start_playback()
 		self.window.mainloop()

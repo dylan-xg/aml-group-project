@@ -84,6 +84,11 @@ class _Settings(_BaseSettings):
 	The actual framerate will likely be lower due to peformance overhead.
 	"""
 
+	INPUT_BUTTON_WIDTH: _Annotated[
+		int,
+		_Field(frozen=True, gt=0, lt=WINDOW_WIDTH)
+	] = 20
+
 
 	def input_source(self) -> int | _Path:
 		"""Util function to parse and validate the input source.

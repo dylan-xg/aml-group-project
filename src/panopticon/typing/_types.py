@@ -13,3 +13,12 @@ type ProcessFrameCallback = _Callable[[Frame], Frame | None]
 
 type FrameDisplayCallback = _Callable[[Frame], None]
 """A function used for a custom frame display output."""
+
+type ButtonCommand = _Callable[[], _Any]
+"""The function signature of the command called when a button is pressed."""
+
+type ModelStateCallback = _Callable[[bool], None]
+"""A callback function to report the current state of the model."""
+
+type ButtonCommandWithStateCallback = _Callable[[ModelStateCallback], None]
+"""An expanded button command that has an input for the :func:`ModelStateCallback` function."""
