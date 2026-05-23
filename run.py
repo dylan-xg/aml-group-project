@@ -15,7 +15,7 @@ def demonstrate_callback(frame: Frame) -> Frame:
 video_feed = VideoFeed(
 	capture_location=SETTINGS.input_source(),
 	callback=demonstrate_callback,
-	frametime=1/60
+	frametime=1./SETTINGS.FRAMERATE
 )
 
 #webcam_feed = VideoFeed(capture_location=0)

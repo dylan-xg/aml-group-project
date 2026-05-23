@@ -75,6 +75,15 @@ class _Settings(_BaseSettings):
 		`TESTING_VID='data/testing/example.mp4'`
 	"""
 
+	FRAMERATE: _Annotated[
+		int,
+		_Field(frozen=True)
+	] = 30
+	"""The maximum framerate that is displayed.
+
+	The actual framerate will likely be lower due to peformance overhead.
+	"""
+
 
 	def input_source(self) -> int | _Path:
 		"""Util function to parse and validate the input source.
