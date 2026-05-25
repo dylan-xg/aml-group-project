@@ -6,7 +6,7 @@ from deepface.models.facial_recognition.Facenet import (load_facenet128d_model) 
 from deepface.modules.verification import thresholds, confidences
 from keras.models import load_model
 
-from settings import *
+from .settings import *
 from .controller import FaceRecognitionController
 
 # ============================================================
