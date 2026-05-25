@@ -41,7 +41,7 @@ class ExampleModel(BaseModel):
 	IMG_SIZE = (IMG_LENGTH, IMG_LENGTH)
 	IMG_SHAPE = IMG_SIZE + (3,)
 
-	def __init__(self, name: str) -> None:
+	def __init__(self, name: str = '') -> None:
 		self.name = name
 
 

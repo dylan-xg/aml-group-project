@@ -18,16 +18,17 @@ PHOTO3 = DS_PATH / 'verification_data/00041961.jpg'
 PHOTO4 = DS_PATH / 'verification_data/00044353.jpg'
 
 
-def test_compare_faces():
+def test_compare_faces_euclidean() -> None:
 	faces_list: list[Path] = [PHOTO1, PHOTO2, PHOTO3, PHOTO4]
 	faces_array = np.array(faces_list)
-	model = ExampleModel('')
+	model = ExampleModel()
 	model.load_model()
 
 	result = compare_faces_from_path(
 		faces=faces_array,
 		image_size=model.IMG_SIZE,
-		model=model
+		model=model,
+		metric='euclidean'
 	)
 
 	expected = np.array([
@@ -39,3 +40,27 @@ def test_compare_faces():
 
 	assert len(result) == len(expected)
 	assert np.allclose(result, expected, rtol=1e-1)
+
+
+def test_compare_faces_cosine() -> None:
+	faces_list: list[Path] = [PHOTO1, PHOTO2, PHOTO3, PHOTO4]
+	faces_array = np.array(faces_list)
+	model = ExampleModel()
+	model.load_model()
+
+	result = compare_faces_from_path(
+		faces=faces_array,
+		image_size=model.IMG_SIZE,
+		model=model,
+		metric='cosine'
+	)
+
+	expected = np.array([
+		[0.00e+00, 6.83e-01, 7.87e-01, 6.93e-01],
+		[6.83e-01, 0.00e+00, 5.33e-01, 5.69e-01],
+		[7.87e-01, 5.33e-01, 0.00e+00, 4.24e-01],
+		[6.93e-01, 5.69e-01, 4.24e-01, 0.00e+00]
+	])
+
+	assert len(result) == len(expected)
+	assert np.allclose(result, expected, rtol=1e-2)

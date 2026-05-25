@@ -1,6 +1,9 @@
 
 from pathlib import Path as _Path
-from typing import Iterable as _Iterable
+from typing import (
+	Iterable as _Iterable,
+	Literal as _Literal
+)
 
 import numpy as np
 import numpy.typing as npt
@@ -29,7 +32,8 @@ _config_gpu()
 
 def compare_faces(
 	faces: ndarr,
-	model: BaseModel
+	model: BaseModel,
+	metric: _Literal['euclidean'] | _Literal['cosine']
 ) -> ndarr:
 	"""Calculate the pairwise Euclidean distance matrix for face embeddings.
 
@@ -53,13 +57,14 @@ def compare_faces(
 		model.embedding_model.predict_on_batch(faces)
 	)
 	# Scipy euclidean distance calculation, much better for arrays.
-	return _cdist(embeddings, embeddings, metric='euclidean')
+	return _cdist(embeddings, embeddings, metric=metric)
 
 
 def compare_faces_from_path(
 	faces: _Iterable[_Path],
 	image_size: tuple[int, int],
-	model: BaseModel
+	model: BaseModel,
+	metric: _Literal['euclidean'] | _Literal['cosine']
 ) -> ndarr:
 
 	def _load_image(filepath: tf.Tensor, /) -> tf.Tensor:
@@ -90,4 +95,4 @@ def compare_faces_from_path(
 		buffer_size=tf_AUTOTUNE
 	)
 	image_batch: npt.NDArray = dataset.as_numpy_iterator().next() # type: ignore
-	return compare_faces(faces=image_batch, model=model)
+	return compare_faces(faces=image_batch, model=model, metric=metric)
