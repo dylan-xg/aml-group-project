@@ -37,8 +37,7 @@ def test_compare_faces_euclidean() -> None:
 		[12.18, 10.31, 08.51, 00.00]
 	])
 
-	assert len(result) == len(expected)
-	assert np.allclose(result, expected, rtol=1e-1)
+	np.testing.assert_allclose(actual=result, desired=expected, rtol=1e-1, strict=True)
 
 
 def test_compare_faces_cosine() -> None:
@@ -60,5 +59,4 @@ def test_compare_faces_cosine() -> None:
 		[6.93e-01, 5.69e-01, 4.24e-01, 0.00e+00]
 	])
 
-	assert len(result) == len(expected)
-	assert np.allclose(result, expected, rtol=1e-2)
+	np.testing.assert_allclose(actual=result, desired=expected, rtol=1e-2, strict=True)
