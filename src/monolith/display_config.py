@@ -1,19 +1,11 @@
 """Display configuration options for the video feed."""
 
-from typing import Literal as _Literal, TypeAlias as _TypeAlias
+from typing import Literal
 
-import ipywidgets as _widgets
+import ipywidgets
 
-from ..typing import FrameDisplayCallback
+from .settings import Frame, FrameDisplayCallback
 
-#__all__: list[str] = [x for x in dir() if not x.startswith('_')]
-__all__: list[str] = [
-	'Headless',
-	'OpenCV',
-	'Jupyter',
-	'Custom',
-	'DisplayConfigType'
-]
 
 class Headless:
 	"""Do not display any type of video output.
@@ -59,16 +51,16 @@ class Jupyter:
 	"""
 
 	frametime: float
-	image_widget: _widgets.Image
+	image_widget: ipywidgets.Image
 
 	def __init__(
 		self,
 		*,
 		frametime: float = 1/30,
-		format: _Literal['jpeg'] | _Literal['png'] = 'jpeg',
+		format: Literal['jpeg'] | Literal['png'] = 'jpeg',
 	) -> None:
 		self.frametime = frametime
-		self.image_widget = _widgets.Image(format=format)
+		self.image_widget = ipywidgets.Image(format=format)
 
 
 class Custom:
@@ -96,5 +88,5 @@ class Custom:
 		self.func = func
 
 
-DisplayConfigType: _TypeAlias = Headless | OpenCV | Jupyter | Custom
+type DisplayConfigType = Headless | OpenCV | Jupyter | Custom
 """Selector for the type of video display to use."""

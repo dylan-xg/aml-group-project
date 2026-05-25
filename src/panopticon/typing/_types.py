@@ -11,9 +11,6 @@ type Frame = _cv.typing.MatLike
 type ProcessFrameCallback = _Callable[[Frame], Frame | None]
 """A function that is called on a frame input for processing of some kind. Can return a modified result."""
 
-type FrameDisplayCallback = _Callable[[Frame], None]
-"""A function used for a custom frame display output."""
-
 type ButtonCommand = _Callable[[], _Any]
 """The function signature of the command called when a button is pressed."""
 

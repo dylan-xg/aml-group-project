@@ -9,6 +9,7 @@ from keras.models import load_model
 from .settings import *
 from .controller import FaceRecognitionController
 
+
 # ============================================================
 # Custom DeepFace Runtime Extension
 

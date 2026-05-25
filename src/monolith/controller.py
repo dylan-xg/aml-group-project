@@ -8,9 +8,9 @@ import cv2 as cv
 from deepface import DeepFace
 import pandas as pd
 
-from .. import video_feed as VideoFeed
+from .video_processor import process_video
+from . import display_config as DisplayConfig
 from .settings import *
-from ..typing import Frame
 
 
 #IF VIDEO DOES NOT DISPLAY SET recognition_enabled TO FALSE
@@ -62,10 +62,10 @@ class FaceRecognitionController:
 
 	def run(self, source: int | str | Path) -> None:
 		try:
-			VideoFeed.process_video(
+			process_video(
 				capture_location=source,
 				callback=lambda frame: self._video_callback(frame),
-				display_config=VideoFeed.DisplayConfig.OpenCV(frametime=1 / 15)
+				display_config=DisplayConfig.OpenCV(frametime=1 / 15)
 			)
 
 		finally:
