@@ -1,3 +1,4 @@
+"""The entry point for panopticon."""
 
 from src.panopticon.recognition import LOADED_MODELS, run_enabled_models
 from src.panopticon.settings import SETTINGS
