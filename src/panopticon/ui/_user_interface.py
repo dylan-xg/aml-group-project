@@ -4,7 +4,7 @@ import tkinter as _tk
 from tkinter import ttk as _ttk
 from typing import Iterable as _Iterable
 
-from ..recognition import BaseModel
+from ..modules import BaseModule
 from ..settings import SETTINGS
 from ._video_widget import VideoWidget
 from ._button import Button
@@ -76,25 +76,22 @@ class UserInterface:
 		if auto_start: self.video_widget.start_playback()
 
 
-	def add_models(
+	def add_modules(
 		self,
-		models: _Iterable[BaseModel],
+		models: _Iterable[BaseModule],
 		order: int = 100
 	) -> None:
 		"""Add support for a collection of models."""
-		# Need to know how each model will be structured.
-
 		model_buttons: list[Button] = []
 
-		for i, model in enumerate(models):
+		for i, module in enumerate(models):
 			new_button: Button = Button.complex_button(
 				input_panel=self.input_panel,
-				label=model.name,
+				label=module.name,
 				order=order + i,
-				command=model.toggle_enabled
+				command=module.toggle_enabled
 			)
 			model_buttons.append(new_button)
-			# Only important thing to extract is the inference function.
 
 
 	def start(self) -> None:

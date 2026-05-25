@@ -16,6 +16,6 @@ app = UserInterface(
 	video_feed=video_feed
 )
 
-app.add_models(models=LOADED_MODULES)
+app.add_modules(models=LOADED_MODULES)
 
 app.start()

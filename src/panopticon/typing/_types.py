@@ -14,8 +14,8 @@ type ProcessFrameCallback = _Callable[[Frame], Frame | None]
 type ButtonCommand = _Callable[[], _Any]
 """The function signature of the command called when a button is pressed."""
 
-type ModelStateCallback = _Callable[[bool], None]
-"""A callback function to report the current state of the model."""
+type ModuleStateCallback = _Callable[[bool], None]
+"""A callback function to report the current state of the module."""
 
-type ButtonCommandWithStateCallback = _Callable[[ModelStateCallback], None]
-"""An expanded button command that has an input for the :func:`ModelStateCallback` function."""
+type ButtonCommandWithStateCallback = _Callable[[ModuleStateCallback], None]
+"""An expanded button command that has an input for the :func:`ModuleStateCallback` function."""

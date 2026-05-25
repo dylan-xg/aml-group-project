@@ -9,7 +9,7 @@ from typing import (
 
 import keras
 
-from ..typing import Frame, ModelStateCallback
+from ..typing import Frame, ModuleStateCallback
 
 
 class BaseModule:
@@ -20,7 +20,7 @@ class BaseModule:
 
 	def toggle_enabled(
 		self,
-		callback: ModelStateCallback
+		callback: ModuleStateCallback
 	) -> None:
 		self.enabled = not self.enabled
 		callback(self.enabled)
@@ -79,7 +79,7 @@ def _fake_load_models() -> _Iterable[BaseModule]:
 
 	fake_models: list[BaseModule] = []
 	for i in range(10):
-		fake_models.append(ExampleModule(name=f'Model {i}'))
+		fake_models.append(ExampleModule(name=f'Module {i}'))
 
 	return fake_models
 
