@@ -13,7 +13,7 @@ from tensorflow import config as _tf_config # type: ignore
 from tensorflow.data import AUTOTUNE as _TF_AUTOTUNE # type: ignore
 
 from src.panopticon.recognition import ExampleModel
-#from src.panopticon.recognition._distance import euclidean_distance
+
 
 type ndarr = _npt.NDArray
 
@@ -35,7 +35,7 @@ def compare_faces(
 	model: ExampleModel,
 	metric: _Literal['euclidean'] | _Literal['cosine']
 ) -> ndarr:
-	"""Calculate the pairwise Euclidean distance matrix for face embeddings.
+	"""Calculate the pairwise distance matrix for facial embeddings.
 
 	Parameters
 	----------
@@ -43,6 +43,8 @@ def compare_faces(
 		A batched array of images containing faces.
 	model : ExampleModel or derived
 		The model used to calculate the embeddings.
+	metric : 'euclidean' or 'cosine'
+		The distance calculation method.
 
 	Returns
 	-------
@@ -51,7 +53,7 @@ def compare_faces(
 
 	Notes
 	-----
-		The image size of the faces should match the model input size.
+		The dimensions of the faces array should match the model input size.
 	"""
 	embeddings: ndarr = _np.asarray_chkfinite(
 		model.embedding_model.predict_on_batch(faces)
@@ -66,6 +68,28 @@ def compare_faces_from_path(
 	model: ExampleModel,
 	metric: _Literal['euclidean'] | _Literal['cosine']
 ) -> ndarr:
+	"""Calculate the pairwise distance matrix for face images.
+
+	Parameters
+	----------
+	faces : iterable of paths
+		An iterable object containing paths to face images.
+	image_size : (int, int)
+		The dimensions to resize the images to.
+	model : ExampleModel
+		The model used for facial embedding.
+	metric : 'euclidean' or 'cosine'
+		The distance calculation method.
+
+	Returns
+	-------
+	npt.NDArray
+		A matrix of size faces^2 containing the euclidean distance between each face.
+
+	Notes
+	-----
+		The image size parameter should match the model input size.
+	"""
 
 	def _load_image(filepath: _tf.Tensor, /) -> _tf.Tensor:
 		raw_image: _tf.Tensor = _tf.io.read_file(filepath)
@@ -94,5 +118,5 @@ def compare_faces_from_path(
 	).prefetch(
 		buffer_size=_TF_AUTOTUNE
 	)
-	image_batch: npt.NDArray = dataset.as_numpy_iterator().next() # type: ignore
+	image_batch: _npt.NDArray = dataset.as_numpy_iterator().next() # type: ignore
 	return compare_faces(faces=image_batch, model=model, metric=metric)
