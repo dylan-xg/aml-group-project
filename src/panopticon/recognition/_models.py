@@ -7,12 +7,6 @@ import keras
 from ..typing import Frame, ModelStateCallback
 
 
-# --- For testing ---
-IMG_LENGTH = 64
-IMG_SIZE = (IMG_LENGTH, IMG_LENGTH)
-IMG_SHAPE = IMG_SIZE + (3,)
-
-
 class BaseModel:
 	"""A representational holder class for a model."""
 	name: str
@@ -37,6 +31,12 @@ class BaseModel:
 # --- If you need to create a class specific to your model, do it here ---
 
 class ExampleModel(BaseModel):
+
+	# --- For testing ---
+	IMG_LENGTH = 64
+	IMG_SIZE = (IMG_LENGTH, IMG_LENGTH)
+	IMG_SHAPE = IMG_SIZE + (3,)
+
 	def __init__(self, name: str) -> None:
 		self.name = name
 
@@ -45,16 +45,16 @@ class ExampleModel(BaseModel):
 		#preprocess_layer = keras.applications.mobilenet_v2.preprocess_input
 		#weights = keras.applications.MobileNetV2(
 		#	include_top=False,
-		#	input_shape=IMG_SHAPE
+		#	input_shape=self.IMG_SHAPE
 		#)
 		weights = keras.applications.EfficientNetV2B2(
 			include_top=False,
-			input_shape=IMG_SHAPE
+			input_shape=self.IMG_SHAPE
 		)
 		weights.trainable = False
 		globalavg_layer = keras.layers.GlobalAveragePooling2D()
 
-		inputs = keras.Input(shape=IMG_SHAPE)
+		inputs = keras.Input(shape=self.IMG_SHAPE)
 		#x: _Any = preprocess_layer(inputs)
 		x = weights(inputs, training=False)
 		latent_dim: _Any = globalavg_layer(x)
