@@ -22,7 +22,6 @@ def test_compare_faces_euclidean() -> None:
 	faces_list: list[Path] = [PHOTO1, PHOTO2, PHOTO3, PHOTO4]
 	faces_array = np.array(faces_list)
 	model = ExampleModel()
-	model.load_model()
 
 	result = compare_faces_from_path(
 		faces=faces_array,
@@ -46,7 +45,6 @@ def test_compare_faces_cosine() -> None:
 	faces_list: list[Path] = [PHOTO1, PHOTO2, PHOTO3, PHOTO4]
 	faces_array = np.array(faces_list)
 	model = ExampleModel()
-	model.load_model()
 
 	result = compare_faces_from_path(
 		faces=faces_array,
