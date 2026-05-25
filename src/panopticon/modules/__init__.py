@@ -1,8 +1,8 @@
 """A module is a model that will receive a batch of faces and will provide results depending on the type of model."""
 
 from ._modules import (
-	BaseModel as BaseModel,
-	ExampleModel as ExampleModel,
-	LOADED_MODELS as LOADED_MODELS,
-	run_enabled_models as run_enabled_models
+	BaseModule as BaseModule,
+	ExampleModule as ExampleModule,
+	LOADED_MODULES as LOADED_MODULES,
+	run_enabled_modules as run_enabled_modules
 )

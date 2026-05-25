@@ -12,7 +12,7 @@ import keras
 from ..typing import Frame, ModelStateCallback
 
 
-class BaseModel:
+class BaseModule:
 	"""A representational holder class for a model."""
 	name: str
 	enabled: bool = False
@@ -35,7 +35,7 @@ class BaseModel:
 
 # --- If you need to create a class specific to your model, do it here ---
 
-class ExampleModel(BaseModel):
+class ExampleModule(BaseModule):
 
 	# --- For testing ---
 	IMG_LENGTH = 64
@@ -74,31 +74,32 @@ class ExampleModel(BaseModel):
 
 # --- Module level definitions ---
 
-def _fake_load_models() -> _Iterable[BaseModel]:
+def _fake_load_models() -> _Iterable[BaseModule]:
 	"""Testing function."""
 
-	fake_models: list[BaseModel] = []
+	fake_models: list[BaseModule] = []
 	for i in range(10):
-		fake_models.append(ExampleModel(name=f'Model {i}'))
+		fake_models.append(ExampleModule(name=f'Model {i}'))
 
 	return fake_models
 
 
-def _load_all_models() -> _Iterable[BaseModel]:
+# A proper implementation will need to be done when we have modules to load.
+def _load_all_modules() -> _Iterable[BaseModule]:
 	models = _fake_load_models()
 	for m in models:
 		print(f'Loaded {m.name}')
 	return models
 
 
-LOADED_MODELS: _Iterable[BaseModel] = _load_all_models()
+LOADED_MODULES: _Iterable[BaseModule] = _load_all_modules()
 
 # --- Testing ---
 
-def run_enabled_models(frame: Frame):
+def run_enabled_modules(frame: Frame):
 	# This could be run asynchronous from the framerate.
 	# Could maybe dispatch model inference calls in parallel.
-	for model in LOADED_MODELS:
+	for model in LOADED_MODULES:
 		# Skip disabled models
 		if not model.enabled: continue
 		model.run_inference(frame=frame)
