@@ -1,6 +1,6 @@
 """The entry point for panopticon."""
 
-from .modules import LOADED_MODULES, run_enabled_modules
+from .modules import LOADED_MODULES
 from .settings import SETTINGS
 from .ui import UserInterface
 from .video_feed import VideoFeed
@@ -8,7 +8,6 @@ from .video_feed import VideoFeed
 
 video_feed = VideoFeed(
 	capture_location=SETTINGS.input_source(),
-	callback=run_enabled_modules,
 	frametime=1./SETTINGS.FRAMERATE
 )
 
