@@ -3,7 +3,7 @@ from tkinter import ttk as _ttk
 
 from ..typing import (
 	ButtonCommand,
-	ModelStateCallback, # Needed for docstring.
+	ModuleStateCallback, # Needed for docstring.
 	ButtonCommandWithStateCallback
 )
 from ..settings import SETTINGS
