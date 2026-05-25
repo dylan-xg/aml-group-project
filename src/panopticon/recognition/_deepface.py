@@ -1,4 +1,7 @@
-"""Integrates the models into DeepFace."""
+"""Integrates the face recognition model into DeepFace.
+
+It should detect all faces, recognise known faces, and locate them within the frame.
+"""
 
 #from deepface import DeepFace
 from deepface.modules import preprocessing, modeling
@@ -6,10 +9,8 @@ from deepface.models.FacialRecognition import FacialRecognition
 #from deepface.models.facial_recognition.Facenet import load_facenet128d_model
 from deepface.modules.verification import thresholds, confidences
 
-from ._models import BaseModel
 
-
-def add_model_to_deepface(model: BaseModel) -> None:
+def add_model_to_deepface(model) -> None:
 	class NewModelClient(FacialRecognition):
 		def __init__(self) -> None:
 			self.model = model.embedding_model

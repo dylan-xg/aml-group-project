@@ -1,9 +1,9 @@
 """The entry point for panopticon."""
 
-from src.panopticon.recognition import LOADED_MODELS, run_enabled_models
-from src.panopticon.settings import SETTINGS
-from src.panopticon.ui import UserInterface
-from src.panopticon.video_feed import VideoFeed
+from .modules import LOADED_MODELS, run_enabled_models
+from .settings import SETTINGS
+from .ui import UserInterface
+from .video_feed import VideoFeed
 
 
 video_feed = VideoFeed(

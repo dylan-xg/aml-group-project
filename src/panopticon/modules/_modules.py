@@ -1,3 +1,4 @@
+"""A module is a model that will receive a batch of faces and will provide results depending on the type of model."""
 
 from abc import abstractmethod as _abstractmethod
 from typing import (
