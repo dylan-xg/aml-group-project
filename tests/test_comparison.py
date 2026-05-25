@@ -1,0 +1,41 @@
+
+from pathlib import Path
+
+import numpy as np
+
+from panopticon.recognition._comparison import compare_faces_from_path
+from src.panopticon.recognition import ExampleModel
+
+
+DS_PATH = Path('data/datasets/project_face_dataset')
+
+# verification_data/00007133.jpg verification_data/00060449.jpg 1
+# verification_data/00041961.jpg verification_data/00044353.jpg 0
+
+PHOTO1 = DS_PATH / 'verification_data/00007133.jpg'
+PHOTO2 = DS_PATH / 'verification_data/00060449.jpg'
+PHOTO3 = DS_PATH / 'verification_data/00041961.jpg'
+PHOTO4 = DS_PATH / 'verification_data/00044353.jpg'
+
+
+def test_compare_faces():
+	faces_list: list[Path] = [PHOTO1, PHOTO2, PHOTO3, PHOTO4]
+	faces_array = np.array(faces_list)
+	model = ExampleModel('')
+	model.load_model()
+
+	result = compare_faces_from_path(
+		faces=faces_array,
+		image_size=model.IMG_SIZE,
+		model=model
+	)
+
+	expected = np.array([
+		[00.00, 12.01, 12.36, 12.18],
+		[12.01, 00.00, 09.42, 10.31],
+		[12.36, 09.42, 00.00, 08.51],
+		[12.18, 10.31, 08.51, 00.00]
+	])
+
+	assert len(result) == len(expected)
+	assert np.allclose(result, expected, rtol=1e-1)

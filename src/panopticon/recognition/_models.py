@@ -1,6 +1,10 @@
 
 from abc import abstractmethod as _abstractmethod
-from typing import Any as _Any, Iterable as _Iterable
+from typing import (
+	Any as _Any,
+	Iterable as _Iterable,
+	override as _override
+)
 
 import keras
 
@@ -41,6 +45,7 @@ class ExampleModel(BaseModel):
 		self.name = name
 
 
+	@_override
 	def load_model(self):
 		#preprocess_layer = keras.applications.mobilenet_v2.preprocess_input
 		#weights = keras.applications.MobileNetV2(
@@ -61,6 +66,7 @@ class ExampleModel(BaseModel):
 		self.embedding_model: keras.Model = keras.Model(inputs, latent_dim)
 
 
+	@_override
 	def run_inference(self, frame: Frame):
 		return False
 

@@ -12,6 +12,7 @@ dependencies = [
     "pandas>=3.0.3",
     "psycopg[binary]>=3.3.4",
     "pydantic-settings>=2.14.1",
+    "scipy>=1.17.1",
     "tensorflow[and-cuda]>=2.21.0",
     "tf-keras>=2.21.0",
 ]

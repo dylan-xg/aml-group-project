@@ -10,3 +10,4 @@ pytest
 pydantic-settings
 psycopg[binary]
 faiss-gpu-cu12
+scipy
