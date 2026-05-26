@@ -7,11 +7,11 @@ from src.panopticon.drawer import (
 )
 from src.panopticon.typing import Frame
 
-IMG_SIZE = 100
+IMG_SIZE = 500
 FIFTH = IMG_SIZE // 5
-THREE_FIFTHS = FIFTH * 3
+FOUR_FIFTHS = FIFTH * 4
 BASIC_FRAME: Frame = np.ones((IMG_SIZE, IMG_SIZE, 3))
-DISPLAY_TIME_MS = 1000
+DISPLAY_TIME_MS = 1_000
 
 def show(frame: Frame, /, title: str ='') -> None:
 	cv2.imshow(winname=title, mat=frame)
@@ -20,21 +20,20 @@ def show(frame: Frame, /, title: str ='') -> None:
 
 
 def create_box() -> Box:
-	return Box(left=FIFTH, top=FIFTH, right=THREE_FIFTHS, bottom=THREE_FIFTHS)
+	return Box(left=FIFTH, top=FIFTH, right=FOUR_FIFTHS, bottom=FOUR_FIFTHS)
 
 
-def create_text() -> Text:
-	return Text(label='Test', position=(FIFTH, THREE_FIFTHS), scale=1)
+def create_text(label: str = 'Test', scale: float = 1) -> Text:
+	return Text(label=label, position=(FIFTH, FOUR_FIFTHS), scale=scale)
 
 
 def create_face() -> Face:
 	return Face(
 		box=create_box(),
-		details=[
-			create_text(),
-			Text(
-				label='Test2',
-				position=(FIFTH, FIFTH),
+		texts=[
+			create_text(label='First detail', scale=2),
+			create_text(
+				label='Second detail longer smaller',
 				scale=0.5
 			)
 		]
@@ -56,12 +55,12 @@ def test_text():
 def test_face():
 	face = create_face()
 	result: Frame = face.draw_onto_frame(BASIC_FRAME)
-	show(result, title=test_text.__name__)
+	show(result, title=test_face.__name__)
 
 
 def test_drawer():
 	drawer = Drawer()
 	drawer.add_face(create_face())
-	drawer.add_text(create_text())
+	drawer.add_text(create_text('Inside'))
 	result: Frame = drawer.draw_onto_frame(BASIC_FRAME)
-	show(result, title=test_text.__name__)
+	show(result, title=test_drawer.__name__)

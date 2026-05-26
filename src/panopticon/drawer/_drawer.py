@@ -1,21 +1,16 @@
 
-from dataclasses import (
-	dataclass as _dataclass,
-	astuple as _astuple
-)
+from dataclasses import dataclass as _dataclass
 
 import cv2 as _cv
 
-from src.panopticon.typing import Frame
+from src.panopticon.typing import Frame, Colour, Position
 
 
-type COLOUR = tuple[int, int, int]
-
-BOX_COLOUR = (0, 0, 255)
-"""BGR format."""
-TEXT_COLOUR = (0, 0, 0)
-"""BGR format."""
+COLOUR_DEFAULT_BOX: Colour = (0, 0, 255) # BGR format
+COLOUR_DEFAULT_TEXT: Colour = (0, 0, 0) # BGR format
 FONT = _cv.FONT_HERSHEY_SIMPLEX
+PADDING_DEFAULT_VERTICAL = 5
+PADDING_DEFAULT_HORIZONTAL = 5
 
 
 @_dataclass
@@ -24,12 +19,13 @@ class Box:
 	top: int
 	right: int
 	bottom: int
-	colour: COLOUR = BOX_COLOUR
+	colour: Colour = COLOUR_DEFAULT_BOX
 
 	def draw_onto_frame(self, frame: Frame, /) -> Frame:
 		return _cv.rectangle(
 			img=frame,
-			rec=(self.left, self.top, self.right, self.bottom),
+			pt1=(self.left, self.top),
+			pt2=(self.right, self.bottom),
 			color=self.colour
 		)
 
@@ -37,20 +33,22 @@ class Box:
 @_dataclass
 class Text:
 	label: str
-	position: tuple[int, int]
 	"""(left, bottom)"""
 	scale: float = 1
-	colour: COLOUR = TEXT_COLOUR
+	colour: Colour = COLOUR_DEFAULT_TEXT
 	thickness: int = 2
+	position: Position = (0, 0)
 
-	#_cv.getFontScaleFromHeight
-	#_cv.getTextSize
-
-	def draw_onto_frame(self, frame: Frame, /) -> Frame:
+	def draw_onto_frame(
+		self,
+		frame: Frame,
+		/,
+		pos: Position | None = None
+	) -> Frame:
 		return _cv.putText(
 			img=frame,
 			text=self.label,
-			org=self.position,
+			org=pos or self.position,
 			fontFace=FONT,
 			fontScale=self.scale,
 			color=self.colour,
@@ -62,13 +60,71 @@ class Text:
 @_dataclass
 class Face:
 	box: Box
-	details: list[Text]
+	texts: list[Text]
+	#padding_box_x: int = PADDING_DEFAULT_HORIZONTAL # Unused
+	padding_box_y: int = PADDING_DEFAULT_VERTICAL
+	padding_frame_x: int = PADDING_DEFAULT_HORIZONTAL
+	padding_frame_y: int = PADDING_DEFAULT_VERTICAL
+	padding_text_y: int = PADDING_DEFAULT_VERTICAL
 
 	def draw_onto_frame(self, frame: Frame, /) -> Frame:
 		frame = self.box.draw_onto_frame(frame)
 
-		for detail in self.details:
-			frame = detail.draw_onto_frame(frame)
+		#_cv.getFontScaleFromHeight
+		#_cv.getTextSize
+
+		# Calculate where to draw the text.
+		# `getTextSize` returns ((width, height), baseline)
+		details = [
+			_cv.getTextSize(
+				text=text.label,
+				fontFace=FONT,
+				fontScale=text.scale,
+				thickness=text.thickness
+			)[0]
+			for text in self.texts
+		]
+
+		if not details: return frame
+
+		widths: list[int] = [d[0] for d in details]
+		heights: list[int] = [d[1] + self.padding_text_y for d in details]
+
+		total_height: int = sum(heights)
+		max_width: int = max(widths)
+
+		# Retrieve the frame's dimensions.
+		frame_width: int
+		frame_height: int
+		frame_height, frame_width = frame.shape[:2]
+
+		# --- Set horizontal position ---
+		if max_width > frame_width - (self.padding_frame_x * 2):
+			raise ValueError('Text is too wide, unable to handle.')
+
+		max_x: int = frame_width - max_width - self.padding_frame_x
+		horizontal_pos: int = max(self.padding_frame_x, min(self.box.left, max_x))
+
+		# --- Set vertical position ---
+		# Pin to bottom of the frame as default.
+		vertical_pos: int = frame_height - total_height - self.padding_frame_y
+		if self.box.bottom + total_height + self.padding_box_y <= frame_height - self.padding_frame_y:
+			# Can go below box.
+			vertical_pos = self.box.bottom + self.padding_box_y
+		elif self.box.top - total_height - self.padding_box_y >= self.padding_frame_y:
+			# Can go above box.
+			vertical_pos = self.box.top - total_height - self.padding_box_y
+		else:
+			# Pin to left side.
+			horizontal_pos = self.padding_frame_x
+
+		# --- Drawing ---
+		for text, line_height in zip(self.texts, heights):
+			vertical_pos += line_height
+			frame = text.draw_onto_frame(
+				frame,
+				pos=(horizontal_pos, vertical_pos)
+			)
 
 		return frame
 

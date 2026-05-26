@@ -5,5 +5,7 @@ from ._types import (
 	ProcessFrameCallback as ProcessFrameCallback,
 	ButtonCommand as ButtonCommand,
 	ModuleStateCallback as ModuleStateCallback,
-	ButtonCommandWithStateCallback as ButtonCommandWithStateCallback
+	ButtonCommandWithStateCallback as ButtonCommandWithStateCallback,
+	Colour as Colour,
+	Position as Position
 )

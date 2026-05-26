@@ -19,3 +19,15 @@ type ModuleStateCallback = _Callable[[bool], None]
 
 type ButtonCommandWithStateCallback = _Callable[[ModuleStateCallback], None]
 """An expanded button command that has an input for the :func:`ModuleStateCallback` function."""
+
+type Colour = tuple[int, int, int]
+"""Colour type used by OpenCV.
+
+(blue, green, red)
+"""
+
+type Position = tuple[int, int]
+"""Position type used by OpenCV.
+
+(width, height)
+"""
