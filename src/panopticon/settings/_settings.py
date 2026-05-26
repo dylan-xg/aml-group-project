@@ -87,8 +87,14 @@ class _Settings(_BaseSettings):
 	INPUT_BUTTON_WIDTH: _Annotated[
 		int,
 		_Field(frozen=True, gt=0, lt=WINDOW_WIDTH)
-	] = 20
+	] = 30
 	"""The width to use for the input button."""
+
+	MODEL_WEIGHTS_LOCATION: _Annotated[
+		_Path,
+		_Field(frozen=True)
+	] = _Path('src/panopticon/model_weights')
+	"""The path to the folder containing the model weights."""
 
 
 	def input_source(self) -> int | _Path:

@@ -6,7 +6,8 @@ from dataclasses import (
 from pathlib import Path as _Path
 from typing import (
 	Any as _Any,
-	override as _override
+	override as _override,
+	Self as _Self
 )
 
 import keras.layers as _layers
@@ -79,8 +80,9 @@ class KerasModule(_BaseModule):
 
 
 	@_override
-	def load_model(self) -> None:
+	def load_model(self) -> _Self:
 		self.model: _Functional | None = _models.load_model(filepath=self.path, compile=False) # type: ignore
+		return self
 
 
 	@_override

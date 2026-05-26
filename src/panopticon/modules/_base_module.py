@@ -10,8 +10,9 @@ from dataclasses import (
 )
 from typing import (
 	Any as _Any,
+	Callable as _Callable,
 	dataclass_transform as _dataclass_transform,
-	Callable as _Callable
+	Self as _Self
 )
 
 from keras.src import Functional
@@ -57,7 +58,7 @@ class BaseModule(_ABC):
 
 
 	@_abstractmethod
-	def load_model(self) -> None:
+	def load_model(self) -> None | _Self:
 		"""A method to load the model weights for this module."""
 		raise NotImplementedError
 
