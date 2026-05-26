@@ -88,8 +88,8 @@ class Button:
 			order,
 			_ttk.Button(
 				master=input_panel,
-				text=f'{label} (Disabled)',
 				command=lambda:command(inst.update_label),
+				text=cls.state_label_builder(label=label, state=False),
 				width=SETTINGS.INPUT_BUTTON_WIDTH
 			)
 		)
@@ -97,6 +97,13 @@ class Button:
 		return inst
 
 
+	@classmethod
+	def state_label_builder(cls, label: str, state: bool) -> str:
+		enabled_txt = 'O ―'
+		disabled_txt = 'X ―'
+		fmt = '{1} {0}'
+		return fmt.format(label, enabled_txt if state else disabled_txt)
+
+
 	def update_label(self, state: bool) -> None:
-		state_label = 'Enabled' if state else 'Disabled'
-		self._button.configure(text=f'{self._label} ({state_label})')
+		self._button.configure(text=self.state_label_builder(label=self.label, state=state))
