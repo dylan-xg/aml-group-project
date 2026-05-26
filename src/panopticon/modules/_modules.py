@@ -1,5 +1,7 @@
 """A module is a model that will receive a batch of faces and will provide results depending on the type of model."""
 
+# TODO Could analysis be run asynchronous from the framerate?
+
 from abc import abstractmethod as _abstractmethod
 from typing import (
 	Any as _Any,
@@ -8,6 +10,7 @@ from typing import (
 )
 
 import keras
+from keras.src import Functional
 
 from ..typing import Frame, ModuleStateCallback
 
@@ -16,7 +19,7 @@ class BaseModule:
 	"""A representational holder class for a model."""
 	name: str
 	enabled: bool = False
-	embedding_model: keras.Model
+	embedding_model: Functional
 
 	def toggle_enabled(
 		self,
@@ -29,7 +32,7 @@ class BaseModule:
 	def load_model(self): raise NotImplementedError
 
 	@_abstractmethod
-	def run_inference(self, frame: Frame) -> _Any:
+	def run_inference(self, faces) -> _Any:
 		raise NotImplementedError
 
 
@@ -42,18 +45,22 @@ class ExampleModule(BaseModule):
 	IMG_SIZE = (IMG_LENGTH, IMG_LENGTH)
 	IMG_SHAPE = IMG_SIZE + (3,)
 
-	def __init__(self, name: str = '') -> None:
+	def __init__(self, name: str = '', image_length: int = 64) -> None:
 		self.name = name
+		self.IMG_LENGTH = image_length
+		self.IMG_SIZE = (self.IMG_LENGTH, self.IMG_LENGTH)
+		self.IMG_SHAPE = self.IMG_SIZE + (3,)
 
 
 	@_override
 	def load_model(self):
+
 		#preprocess_layer = keras.applications.mobilenet_v2.preprocess_input
 		#weights = keras.applications.MobileNetV2(
 		#	include_top=False,
 		#	input_shape=self.IMG_SHAPE
 		#)
-		weights = keras.applications.EfficientNetV2B2(
+		weights: Functional = keras.applications.EfficientNetV2B2(
 			include_top=False,
 			input_shape=self.IMG_SHAPE
 		)
@@ -63,13 +70,13 @@ class ExampleModule(BaseModule):
 		inputs = keras.Input(shape=self.IMG_SHAPE)
 		#x: _Any = preprocess_layer(inputs)
 		x = weights(inputs, training=False)
-		latent_dim: _Any = globalavg_layer(x)
-		self.embedding_model: keras.Model = keras.Model(inputs, latent_dim)
+		latent_dim = globalavg_layer(x)
+		self.embedding_model: Functional = Functional(inputs=inputs, outputs=latent_dim, trainable=False)
 
 
 	@_override
-	def run_inference(self, frame: Frame):
-		return False
+	def run_inference(self, faces):
+		return self.embedding_model.predict_on_batch(faces)
 
 
 # --- Module level definitions ---
@@ -96,10 +103,9 @@ LOADED_MODULES: _Iterable[BaseModule] = _load_all_modules()
 
 # --- Testing ---
 
-def run_enabled_modules(frame: Frame):
-	# This could be run asynchronous from the framerate.
+def run_enabled_modules(faces):
 	# Could maybe dispatch model inference calls in parallel.
 	for model in LOADED_MODULES:
 		# Skip disabled models
 		if not model.enabled: continue
-		model.run_inference(frame=frame)
+		model.run_inference(faces=faces)
