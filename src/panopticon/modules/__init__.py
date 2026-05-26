@@ -5,7 +5,8 @@ from ._base_module import (
 )
 from ._modules import (
 	ExampleModule as ExampleModule,
-	KerasModule as KerasModule
+	KerasModule as KerasModule,
+    EmotionModule as EmotionModule
 )
 from ._functions import (
 	LOADED_MODULES as LOADED_MODULES,
