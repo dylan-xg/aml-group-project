@@ -1,0 +1,49 @@
+Emotion Model (expression9_orig_longrun.keras):
+
+Details:
+9 output values: "angry", "contempt", "disgust", "fear", "happy", "natural", "sad", "sleepy", "surprised"
+dataset: https://www.kaggle.com/datasets/aklimarimi/8-facial-expressions-for-yolo
+input shape: (128, 128, 3)
+preprocessing:
+    image = tf.io.read_file(path)
+    image = tf.image.decode_jpeg(image, channels=3)
+
+    image = tf.image.resize(image, IMAGE_SIZE)
+    image = tf.cast(image, tf.float32) / 255.0
++ batch
+
+Model Definition:
+
+model = keras.Sequential([
+    layers.Input(shape=(IMAGE_SIZE[0], IMAGE_SIZE[1], 3)),
+
+    layers.RandomFlip("horizontal"),
+    layers.RandomRotation(0.05),
+    layers.RandomZoom(0.10),
+
+    layers.Conv2D(32, 3, activation="relu", padding="same"),
+    layers.MaxPooling2D(),
+
+    layers.Conv2D(64, 3, activation="relu", padding="same"),
+    layers.MaxPooling2D(),
+
+    layers.Conv2D(128, 3, activation="relu", padding="same"),
+    layers.MaxPooling2D(),
+
+    layers.Conv2D(256, 3, activation="relu", padding="same"),
+    layers.MaxPooling2D(),
+
+    layers.Flatten(),
+
+    layers.Dense(256, activation="relu"),
+    layers.Dropout(0.4),
+
+    layers.Dense(NUM_CLASSES, activation="softmax")
+])
+
+Stats:
+
+Test loss: 0.7781084775924683
+Test accuracy: 0.7255594730377197
+
+Macro ROC-AUC: 0.9570990745776022
