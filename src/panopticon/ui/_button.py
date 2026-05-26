@@ -1,5 +1,6 @@
 
 from tkinter import ttk as _ttk
+from typing import Self as _Self
 
 from ..typing import (
 	ButtonCommand,
@@ -58,9 +59,9 @@ class Button:
 		label: str,
 		order: int,
 		command: ButtonCommand
-	):
+	) -> _Self:
 		"""Class factory method to build a button with a simple button command."""
-		inst = cls(
+		inst: _Self = cls(
 			label,
 			order,
 			_ttk.Button(
@@ -80,9 +81,9 @@ class Button:
 		label: str,
 		order: int,
 		command: ButtonCommandWithStateCallback
-	):
+	) -> _Self:
 		"""Class factory method to build a button with a command that supports :func:`ModelStateCallback`."""
-		inst = cls(
+		inst: _Self = cls(
 			label,
 			order,
 			_ttk.Button(
