@@ -7,7 +7,7 @@ DEEPFACE_POSTGRES_URI='postgresql://postgres:@localhost/deepface'
 """
 
 from pathlib import Path as _Path
-from typing import Annotated as _Annotated, Literal as _Literal
+from typing import Annotated as _Annotated
 
 from pydantic import Field as _Field
 from pydantic_settings import (
