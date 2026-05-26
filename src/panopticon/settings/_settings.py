@@ -88,6 +88,7 @@ class _Settings(_BaseSettings):
 		int,
 		_Field(frozen=True, gt=0, lt=WINDOW_WIDTH)
 	] = 20
+	"""The width to use for the input button."""
 
 
 	def input_source(self) -> int | _Path:
