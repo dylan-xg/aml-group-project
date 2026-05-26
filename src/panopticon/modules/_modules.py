@@ -15,6 +15,8 @@ import keras.models as _models
 import keras.applications as _apps
 from keras.src import Functional as _Functional
 
+import tensorflow as _tf ###?
+
 from ._base_module import (
 	BaseModule as _BaseModule,
 	kw_dataclass as _kw_dataclass
@@ -89,3 +91,56 @@ class KerasModule(_BaseModule):
 	def run_inference(self, faces) -> _Any:
 		if self.model is None: raise ValueError('Model not loaded')
 		return self.model(faces, training=False)
+
+
+@_kw_dataclass
+class EmotionModule(_BaseModule):
+
+	path: _Path
+	name: str = 'EmotionModule'
+
+	IMG_LENGTH = 128
+	IMG_SIZE = (IMG_LENGTH, IMG_LENGTH)
+
+	EMOTION_LABELS = [
+		'Angry',
+		'Disgust',
+		'Fear',
+		'Happy',
+		'Sad',
+		'Surprise',
+		'Neutral'
+	]
+
+
+	@_override
+	def load_model(self) -> None:
+		self.model = _models.load_model(
+			filepath=self.path,
+			compile=False
+		)
+
+	def preprocess_faces(self, faces):
+		# Convert input to tensor
+		faces = _tf.convert_to_tensor(faces)
+
+
+		if len(faces.shape) == 3:
+			faces = _tf.expand_dims(faces, axis=0)
+
+		faces = faces[..., ::-1]
+
+		faces = _tf.image.resize(faces, self.IMG_SIZE)
+		faces = _tf.cast(faces, _tf.float32) / 255.0
+
+		return faces
+
+
+	@_override
+	def run_inference(self, faces) -> _Any:
+		if self.model is None:
+			raise ValueError('Model not loaded')
+		emotion_faces = self.preprocess_faces(faces)
+		predictions = self.model(emotion_faces, training=False)
+
+		return predictions

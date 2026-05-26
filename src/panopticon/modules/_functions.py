@@ -8,7 +8,8 @@ from typing import Iterable as _Iterable
 from ._base_module import BaseModule as _BaseModule
 from ._modules import (
 	EmptyModule as _EmptyModule,
-	KerasModule as _KerasModule
+	KerasModule as _KerasModule,
+	EmotionModule as EmotionModule
 )
 from ..settings import SETTINGS as _SETTINGS
 
@@ -23,25 +24,32 @@ def _fake_load_models() -> _Iterable[_BaseModule]:
 	return fake_models
 
 
-def _load_all_modules(
-	path: _Path = _SETTINGS.MODEL_WEIGHTS_LOCATION,
-	pattern: str = '*.keras'
-) -> _Iterable[_BaseModule]:
-	"""Explore the given directory for files matching a pattern."""
-	modules = [
-		_KerasModule(path=path).load_model()
-		for path in path.glob(pattern=pattern)
+# A proper implementation will need to be done when we have modules to load.
+def _load_all_modules() -> _Iterable[_BaseModule]:
+	models: list[_BaseModule] = [
+		EmotionModule(path=_Path('src/panopticon/model_weights/expression9_orig_longrun.keras'))
 	]
-	return modules
+
+	for m in models:
+		m.load_model()
+		print(f'Loaded {m.name}')
+	return models
 
 
-# Can't use set because it requires the elements to be hashable.
 LOADED_MODULES: _Iterable[_BaseModule] = _load_all_modules()
 
+# --- Testing ---
 
 def run_enabled_modules(faces):
+
+
 	# Could maybe dispatch model inference calls in parallel.
 	for model in LOADED_MODULES:
 		# Skip disabled models
 		if not model.enabled: continue
-		model.run_inference(faces=faces)
+		print(f'Running module: {model.name}')
+
+		result = model.run_inference(faces=faces)
+
+		print(f'{model.name} result:')
+		print(result)
