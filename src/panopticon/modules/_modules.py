@@ -5,7 +5,6 @@ from dataclasses import (
 )
 from pathlib import Path as _Path
 from typing import (
-	Any as _Any,
 	override as _override,
 	Self as _Self
 )
@@ -15,7 +14,7 @@ import keras.models as _models
 import keras.applications as _apps
 from keras.src import Functional as _Functional
 
-import tensorflow as _tf ###?
+import tensorflow as _tf
 
 from ._base_module import (
 	BaseModule as _BaseModule,
@@ -32,7 +31,7 @@ class EmptyModule(_BaseModule):
 
 
 	@_override
-	def run_inference(self, faces): pass
+	def run_inference(self, faces) -> str: return ''
 
 
 @_kw_dataclass
@@ -67,7 +66,7 @@ class ExampleModule(_BaseModule):
 
 
 	@_override
-	def run_inference(self, faces):
+	def run_inference(self, faces) -> str:
 		if self.model is None: raise ValueError('Model not loaded')
 		return self.model(faces, training=False)
 
@@ -88,7 +87,7 @@ class KerasModule(_BaseModule):
 
 
 	@_override
-	def run_inference(self, faces) -> _Any:
+	def run_inference(self, faces) -> str:
 		if self.model is None: raise ValueError('Model not loaded')
 		return self.model(faces, training=False)
 
@@ -114,30 +113,29 @@ class EmotionModule(_BaseModule):
 
 
 	@_override
-	def load_model(self) -> None:
+	def load_model(self) -> _Self:
 		self.model = _models.load_model(
 			filepath=self.path,
 			compile=False
 		)
+		return self
+
 
 	def preprocess_faces(self, faces):
 		# Convert input to tensor
-		faces = _tf.convert_to_tensor(faces)
+		faces_tensor: _tf.Tensor = _tf.convert_to_tensor(faces)
 
+		if len(faces_tensor.shape) == 3:
+			faces_tensor = _tf.expand_dims(faces_tensor, axis=0)
 
-		if len(faces.shape) == 3:
-			faces = _tf.expand_dims(faces, axis=0)
-
-		faces = faces[..., ::-1]
-
-		faces = _tf.image.resize(faces, self.IMG_SIZE)
-		faces = _tf.cast(faces, _tf.float32) / 255.0
-
-		return faces
+		faces_tensor = faces_tensor[:,::-1]
+		faces_tensor = _tf.image.resize(faces_tensor, self.IMG_SIZE)
+		faces_tensor = _tf.cast(faces_tensor, _tf.float32) / 255.0
+		return faces_tensor
 
 
 	@_override
-	def run_inference(self, faces) -> _Any:
+	def run_inference(self, faces) -> str:
 		if self.model is None:
 			raise ValueError('Model not loaded')
 		emotion_faces = self.preprocess_faces(faces)

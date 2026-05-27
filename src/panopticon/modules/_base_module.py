@@ -64,6 +64,6 @@ class BaseModule(_ABC):
 
 
 	@_abstractmethod
-	def run_inference(self, faces) -> _Any:
+	def run_inference(self, faces) -> str:
 		"""A method to run model inference on the passed faces."""
 		raise NotImplementedError
