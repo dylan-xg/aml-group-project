@@ -9,7 +9,8 @@ from ._base_module import BaseModule as _BaseModule
 from ._modules import (
 	EmptyModule as _EmptyModule,
 	KerasModule as _KerasModule,
-	EmotionModule as EmotionModule
+	EmotionModule as EmotionModule,
+	AntiSpoofModule as AntiSpoofModule
 )
 from ..settings import SETTINGS as _SETTINGS
 from ..drawer import Drawer, Face
@@ -18,7 +19,8 @@ from ..drawer import Drawer, Face
 # A proper implementation will need to be done when we have modules to load.
 def _load_all_modules() -> _Iterable[_BaseModule]:
 	models: list[_BaseModule] = [
-		EmotionModule(path=_Path('src/panopticon/model_weights/expression9_orig_longrun.keras')).load_model()
+		EmotionModule(path=_Path('src/panopticon/model_weights/expression9_orig_longrun.keras')).load_model(),
+		AntiSpoofModule(path=_Path('src/panopticon/model_weights/anti_spoof_model.keras')).load_model()
 	]
 	return models
 

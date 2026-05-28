@@ -142,3 +142,71 @@ class EmotionModule(_BaseModule):
 		predictions = self.model(emotion_faces, training=False)
 
 		return predictions
+
+@_kw_dataclass
+class AntiSpoofModule(_BaseModule):
+
+	path: _Path
+	name: str = 'AntiSpoofModule'
+
+	IMG_LENGTH = 64
+	IMG_SIZE = (IMG_LENGTH, IMG_LENGTH)
+
+
+	@_override
+	def load_model(self) -> _Self:
+
+		self.model = _models.load_model(
+			filepath=self.path,
+			compile=False
+		)
+
+		return self
+
+
+	def preprocess_faces(self, faces):
+
+		faces_tensor: _tf.Tensor = _tf.convert_to_tensor(faces)
+
+		if len(faces_tensor.shape) == 3:
+			faces_tensor = _tf.expand_dims(
+				faces_tensor,
+				axis=0
+			)
+
+		faces_tensor = _tf.image.resize(
+			faces_tensor,
+			self.IMG_SIZE
+		)
+
+		faces_tensor = _tf.cast(
+			faces_tensor,
+			_tf.float32
+		) / 255.0
+
+		return faces_tensor
+
+
+	@_override
+	def run_inference(self, faces):
+
+		if self.model is None:
+			raise ValueError('Model not loaded')
+
+		spoof_faces = self.preprocess_faces(faces)
+
+		predictions = self.model(
+			spoof_faces,
+			training=False
+		)
+
+		results = []
+
+		for pred in predictions:
+
+			score = float(pred[0])
+
+			if score >= 0.5:
+				results.append("REAL")
+			else:
+				results.append("FAKE")
