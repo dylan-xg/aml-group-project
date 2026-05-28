@@ -1,0 +1,72 @@
+final_face_embedding_model.keras model information:
+
+
+1. Model Name: CustomClassifierEmbeddingModel
+
+2. filename: 50epoch_face_embedding_model.keras
+
+Input shape: (None, 112, 112, 3)
+
+Output shape: (None, 512)
+
+3. Thresholds:
+
+"CustomClassifierEmbeddingModel": 
+{"cosine": 0.4894155263900757, 
+"euclidean": 0.9893589019775391, 
+"euclidean_l2": 0.9893589615821838, 
+"angular": 0.3294290602207184}
+
+
+4. Confidences:
+
+
+{
+    "CustomClassifierEmbeddingModel": {
+        "cosine": {
+            "w": -8.771574193202731,
+            "b": 5.000415759855407,
+            "normalizer": 0.8635047674179077,
+            "denorm_max_true": 99.0,
+            "denorm_min_true": 50.0,
+            "denorm_max_false": 49.0,
+            "denorm_min_false": 0.0
+        },
+        "euclidean": {
+            "w": -12.192513030616036,
+            "b": 9.148279809318405,
+            "normalizer": 1.3141573667526245,
+            "denorm_max_true": 99.0,
+            "denorm_min_true": 50.0,
+            "denorm_max_false": 49.0,
+            "denorm_min_false": 0.0
+        },
+        "euclidean_l2": {
+            "w": -12.192511846803123,
+            "b": 9.14827915775775,
+            "normalizer": 1.3141573667526245,
+            "denorm_max_true": 99.0,
+            "denorm_min_true": 50.0,
+            "denorm_max_false": 49.0,
+            "denorm_min_false": 0.0
+        },
+        "angular": {
+            "w": -11.727093289922996,
+            "b": 8.451637254382216,
+            "normalizer": 0.45641618967056274,
+            "denorm_max_true": 99.0,
+            "denorm_min_true": 50.0,
+            "denorm_max_false": 49.0,
+            "denorm_min_false": 0.0
+        }
+    }
+}
+
+
+Just realised denorm's could be problematic
+
+5. Preprocessing:
+
+None, makes it easier.
+
+
