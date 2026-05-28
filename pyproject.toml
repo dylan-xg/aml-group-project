@@ -21,7 +21,9 @@ dependencies = [
 dev = [
     "ipykernel>=7.2.0",
     "ipywidgets>=8.1.8",
+    "matplotlib>=3.10.9",
     "pytest>=9.0.3",
+    "tensorflow-docs>=2025.2.19.33219",
 ]
 
 # Trick to make the project into a local package.
