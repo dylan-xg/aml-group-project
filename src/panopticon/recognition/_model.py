@@ -1,18 +1,19 @@
 """This is our recognition model."""
 
-import keras
-from keras.src import Functional
-from pathlib import Path
+from pathlib import Path as _Path
+
+import keras as _keras
+from keras.src import Functional as _Functional
 
 
 class ExampleModel:
 	"""For testing."""
 
-	def __init__(self, name: str = '', model_path: str | Path = '') -> None:
+	def __init__(self, name: str = '', model_path: str | _Path = '') -> None:
 		self.name = name
-		self.model_path = Path(model_path)
+		self.model_path = _Path(model_path)
 
-		self.embedding_model: Functional = keras.models.load_model(
+		self.embedding_model: _Functional = _keras.models.load_model( # type: ignore
 			model_path,
 			compile=False
 		)
@@ -36,23 +37,23 @@ class ExampleModel:
 
 		self.confidences = {}
 
-		#preprocess_layer = keras.applications.mobilenet_v2.preprocess_input
-		#weights = keras.applications.MobileNetV2(
+		#preprocess_layer = _keras.applications.mobilenet_v2.preprocess_input
+		#weights = _keras.applications.MobileNetV2(
 		#	include_top=False,
 		#	input_shape=self.IMG_SHAPE
 		#)
-		weights: Functional = keras.applications.EfficientNetV2B2(
+		weights: _Functional = _keras.applications.EfficientNetV2B2(
 			include_top=False,
 			input_shape=self.IMG_SHAPE
 		)
 		weights.trainable = False
-		globalavg_layer = keras.layers.GlobalAveragePooling2D()
+		globalavg_layer = _keras.layers.GlobalAveragePooling2D()
 
-		inputs = keras.Input(shape=self.IMG_SHAPE)
+		inputs = _keras.Input(shape=self.IMG_SHAPE)
 		#x: _Any = preprocess_layer(inputs)
 		x = weights(inputs, training=False)
 		latent_dim = globalavg_layer(x)
-		self.embedding_model: Functional = Functional(inputs=inputs, outputs=latent_dim, trainable=False)
+		self.embedding_model: _Functional = _Functional(inputs=inputs, outputs=latent_dim, trainable=False)
 
 	def normalize(self, img):
 		"""Normalise input image before embedding."""
@@ -64,11 +65,11 @@ class ExampleModel:
 
 class CustomClassifierEmbeddingModel:
 
-	def __init__(self, name: str = "CustomClassifierEmbeddingModel", model_path: str | Path = "src/panopticon/model_weights/final_face_embedding_model.keras") -> None:
+	def __init__(self, name: str = "CustomClassifierEmbeddingModel", model_path: str | _Path = "src/panopticon/model_weights/final_face_embedding_model._keras") -> None:
 		self.name = name
-		self.model_path = Path(model_path)
+		self.model_path = _Path(model_path)
 
-		self.embedding_model: Functional = keras.models.load_model(
+		self.embedding_model: _Functional = _keras.models.load_model(  # type: ignore
 			model_path,
 			compile=False
 		)
@@ -79,8 +80,6 @@ class CustomClassifierEmbeddingModel:
 		self.IMG_SIZE = self.input_shape
 		self.IMG_LENGTH = self.IMG_SIZE[0]
 		self.IMG_SHAPE = self.embedding_model.input_shape[1:]
-
-
 
 		self.thresholds: dict[str, float] = {
 			"cosine": 0.4894155263900757,
@@ -131,6 +130,7 @@ class CustomClassifierEmbeddingModel:
 		}
 
 		self.normalization = self.name
+
 
 	def normalize(self, img):
 		#left the processing to the model, so not any need, although deepface will throw a fit otherwise so it's here anyways
