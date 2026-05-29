@@ -2,7 +2,7 @@
 
 from ._drawer import (
 	Box as Box,
-	Text as Text,
+	Drawer as Drawer,
 	Face as Face,
-	Drawer as Drawer
+	Text as Text,
 )

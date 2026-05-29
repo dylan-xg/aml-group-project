@@ -1,11 +1,11 @@
 """Premade type definitions."""
 
 from ._types import (
-	Frame as Frame,
-	ProcessFrameCallback as ProcessFrameCallback,
 	ButtonCommand as ButtonCommand,
-	ModuleStateCallback as ModuleStateCallback,
 	ButtonCommandWithStateCallback as ButtonCommandWithStateCallback,
 	Colour as Colour,
-	Position as Position
+	Frame as Frame,
+	ModuleStateCallback as ModuleStateCallback,
+	Position as Position,
+	ProcessFrameCallback as ProcessFrameCallback,
 )
