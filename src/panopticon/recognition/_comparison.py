@@ -1,25 +1,24 @@
-
 from pathlib import Path as _Path
-from typing import (
-	Iterable as _Iterable,
-	Literal as _Literal
-)
+from typing import Iterable as _Iterable, Literal as _Literal
 
 import numpy as _np
 import numpy.typing as _npt
-from scipy.spatial.distance import cdist as _cdist
 import tensorflow as _tf
-from tensorflow import config as _tf_config # type: ignore
-from tensorflow.data import AUTOTUNE as _TF_AUTOTUNE # type: ignore
+from scipy.spatial.distance import cdist as _cdist
+from tensorflow import config as _tf_config  # type: ignore
+from tensorflow.data import AUTOTUNE as _TF_AUTOTUNE  # type: ignore
 
-from src.panopticon.recognition import ExampleModel
+from ._model import ExampleModel
 
 
 type ndarr = _npt.NDArray
 
+
 def _config_gpu():
-	GPUS: list[_tf_config.PhysicalDevice] = _tf_config.list_physical_devices(device_type='GPU')
-	print(f'{len(GPUS)} GPU(s): {GPUS}')
+	GPUS: list[_tf_config.PhysicalDevice] = _tf_config.list_physical_devices(
+		device_type="GPU"
+	)
+	print(f"{len(GPUS)} GPU(s): {GPUS}")
 
 	try:
 		_tf_config.experimental.set_memory_growth(GPUS[0], True)
@@ -30,10 +29,11 @@ def _config_gpu():
 
 _config_gpu()
 
+
 def compare_faces(
 	faces: ndarr,
 	model: ExampleModel,
-	metric: _Literal['euclidean'] | _Literal['cosine']
+	metric: _Literal["euclidean"] | _Literal["cosine"],
 ) -> ndarr:
 	"""Calculate the pairwise distance matrix for facial embeddings.
 
@@ -66,7 +66,7 @@ def compare_faces_from_path(
 	faces: _Iterable[_Path],
 	image_size: tuple[int, int],
 	model: ExampleModel,
-	metric: _Literal['euclidean'] | _Literal['cosine']
+	metric: _Literal["euclidean"] | _Literal["cosine"],
 ) -> ndarr:
 	"""Calculate the pairwise distance matrix for face images.
 
@@ -98,25 +98,18 @@ def compare_faces_from_path(
 		image = _tf.image.resize(image, image_size)
 		return image
 
-
 	def _cast_image(image: _tf.Tensor, /) -> _tf.Tensor:
 		return _tf.cast(x=image, dtype=_tf.float32)
-
 
 	faces_list: list[str] = [str(f) for f in faces]
 	total_faces: int = len(faces_list)
 	dataset: _tf.data.Dataset = _tf.data.Dataset.from_tensor_slices(tensors=faces_list)
 	# Chaining calls
-	dataset = dataset.map(
-		map_func=_load_image,
-		num_parallel_calls=_TF_AUTOTUNE
-	).batch(
-		batch_size=total_faces
-	).map(
-		map_func=_cast_image,
-		num_parallel_calls=_TF_AUTOTUNE
-	).prefetch(
-		buffer_size=_TF_AUTOTUNE
+	dataset = (
+		dataset.map(map_func=_load_image, num_parallel_calls=_TF_AUTOTUNE)
+		.batch(batch_size=total_faces)
+		.map(map_func=_cast_image, num_parallel_calls=_TF_AUTOTUNE)
+		.prefetch(buffer_size=_TF_AUTOTUNE)
 	)
-	image_batch: _npt.NDArray = dataset.as_numpy_iterator().next() # type: ignore
+	image_batch: _npt.NDArray = dataset.as_numpy_iterator().next()  # type: ignore
 	return compare_faces(faces=image_batch, model=model, metric=metric)
