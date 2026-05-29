@@ -2,7 +2,6 @@
 
 from typing import Any as _Any, cast as _cast
 
-import cv2 as _cv2
 import pandas as _pd
 from deepface import DeepFace as _DeepFace
 
