@@ -1,23 +1,26 @@
-
 from deepface import DeepFace
-from deepface.modules import preprocessing, modeling
+from deepface.models.facial_recognition.Facenet import (
+	load_facenet128d_model,  # LEGACY, for testing if the issue is your model file.
+)
 from deepface.models.FacialRecognition import FacialRecognition
-from deepface.models.facial_recognition.Facenet import (load_facenet128d_model) #LEGACY, for testing if the issue is your model file.
-from deepface.modules.verification import thresholds, confidences
+from deepface.modules import modeling, preprocessing
+from deepface.modules.verification import confidences, thresholds
 from keras.models import load_model
 
-from .settings import *
 from .controller import FaceRecognitionController
+from .settings import *
 
 
 # ============================================================
 # Custom DeepFace Runtime Extension
 
+
 def load_my_custom_model():
 
-	model = load_model("my_model.keras") #put your .keras model file here
+	model = load_model("my_model.keras")  # put your .keras model file here
 
 	return model
+
 
 class NewModelClient(FacialRecognition):
 	def __init__(self) -> None:
@@ -28,11 +31,17 @@ class NewModelClient(FacialRecognition):
 		type(self.model)
 
 
-modeling.AVAILABLE_MODELS["facial_recognition"][CUSTOM_MODEL] = NewModelClient #adding your model name to the avaliable model list in the right category, facial recognition
+modeling.AVAILABLE_MODELS["facial_recognition"][CUSTOM_MODEL] = (
+	NewModelClient  # adding your model name to the avaliable model list in the right category, facial recognition
+)
 
-thresholds[CUSTOM_MODEL] = thresholds["Facenet"] #just here because i cloned facenet to test the code, format: (variable) thresholds: dict[str, Any]
+thresholds[CUSTOM_MODEL] = thresholds[
+	"Facenet"
+]  # just here because i cloned facenet to test the code, format: (variable) thresholds: dict[str, Any]
 
-confidences[CUSTOM_MODEL] = confidences["Facenet"] #just here because i cloned facenet to test the code, format: (variable) confidences: dict[str, dict[str, dict[str, float]]]
+confidences[CUSTOM_MODEL] = confidences[
+	"Facenet"
+]  # just here because i cloned facenet to test the code, format: (variable) confidences: dict[str, dict[str, dict[str, float]]]
 
 
 original_normalize_input = preprocessing.normalize_input
@@ -41,15 +50,15 @@ original_normalize_input = preprocessing.normalize_input
 def custom_normalize_input(img, normalization="base"):
 
 	if normalization == CUSTOM_MODEL:
-
 		# your custom normalization logic, change for each model
 		mean, std = img.mean(), img.std()
 		img = (img - mean) / std
 
-		#do anything you want within these comments ^
+		# do anything you want within these comments ^
 		return img
 
-	return original_normalize_input(img=img,normalization=normalization)
+	return original_normalize_input(img=img, normalization=normalization)
+
 
 preprocessing.normalize_input = custom_normalize_input
 

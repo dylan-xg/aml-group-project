@@ -4,7 +4,7 @@ from typing import Literal
 
 import ipywidgets
 
-from .settings import Frame, FrameDisplayCallback
+from .settings import FrameDisplayCallback
 
 
 class Headless:
@@ -25,11 +25,7 @@ class OpenCV:
 
 	frametime: float
 
-	def __init__(
-		self,
-		*,
-		frametime: float = 1.0 / 30.0
-	) -> None:
+	def __init__(self, *, frametime: float = 1.0 / 30.0) -> None:
 		self.frametime = frametime
 
 
@@ -56,8 +52,8 @@ class Jupyter:
 	def __init__(
 		self,
 		*,
-		frametime: float = 1/30,
-		format: Literal['jpeg'] | Literal['png'] = 'jpeg',
+		frametime: float = 1 / 30,
+		format: Literal["jpeg"] | Literal["png"] = "jpeg",
 	) -> None:
 		self.frametime = frametime
 		self.image_widget = ipywidgets.Image(format=format)
@@ -79,10 +75,7 @@ class Custom:
 	frametime: float
 
 	def __init__(
-		self,
-		func: FrameDisplayCallback,
-		*,
-		frametime: float = 1/30
+		self, func: FrameDisplayCallback, *, frametime: float = 1 / 30
 	) -> None:
 		self.frametime = frametime
 		self.func = func

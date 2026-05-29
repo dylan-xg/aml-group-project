@@ -1,4 +1,3 @@
-
 from pathlib import Path
 from typing import Callable
 
@@ -7,10 +6,10 @@ import cv2
 
 # Make sure to start the postgresql daemon
 # Add DEEPFACE_POSTGRES_URI='postgresql://postgres@localhost/deepface' to your .env file.
-CUSTOM_MODEL = "MyModel" #YOUR MODEL'S NAME HERE, could be anything
+CUSTOM_MODEL = "MyModel"  # YOUR MODEL'S NAME HERE, could be anything
 RECOGNITION_MODEL = CUSTOM_MODEL
-DISTANCE_METRIC = 'euclidean_l2'
-DB_PATH = Path('data/faces_db')
+DISTANCE_METRIC = "euclidean_l2"
+DB_PATH = Path("data/faces_db")
 
 type Frame = cv2.typing.MatLike
 """A frame is a single image from a webcam or video input."""
