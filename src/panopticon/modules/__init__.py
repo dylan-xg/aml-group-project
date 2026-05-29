@@ -6,7 +6,6 @@ from ._functions import (
 	run_enabled_modules as run_enabled_modules,
 )
 from ._modules import (
+	AntiSpoofModule as AntiSpoofModule,
 	EmotionModule as EmotionModule,
-	ExampleModule as ExampleModule,
-	KerasModule as KerasModule,
 )
