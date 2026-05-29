@@ -1,4 +1,3 @@
-
 from collections.abc import Callable as _Callable
 from typing import Any as _Any
 
@@ -9,7 +8,9 @@ type Frame = _cv.typing.MatLike
 """A frame is a single image from a webcam or video input."""
 
 type ProcessFrameCallback = _Callable[[Frame], Frame | None]
-"""A function that is called on a frame input for processing of some kind. Can return a modified result."""
+"""A function that is called on a frame input for processing of some kind.
+
+Can return a modified result."""
 
 type ButtonCommand = _Callable[[], _Any]
 """The function signature of the command called when a button is pressed."""
