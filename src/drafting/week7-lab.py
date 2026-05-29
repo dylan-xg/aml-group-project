@@ -1,17 +1,17 @@
 
-import os
 import csv
+import os
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 from typing import Any, cast
 
 import cv2 as cv
+import pandas as pd
 from deepface import DeepFace
 from deepface.modules.exceptions import FaceNotDetected
-import pandas as pd
 
-from ..panopticon import video_feed as VideoProcessor
+from ..monolith import video_processor as VP
 
 
 # ==== Settings ====
@@ -118,8 +118,12 @@ def write_to_csv(name: str, event: bool) -> None:
 	event_text: str = 'ENTER' if event else 'EXIT'
 	current_time = str(object=datetime.now().strftime(format='%Y-%m-%d %H:%M:%S'))
 	with open(file=CSV_PATH, mode='a') as csvfile:
-		writer: csv.DictWriter[str] = csv.DictWriter(f=csvfile, fieldnames=['Name', 'Event', 'Time'])
-		writer.writerow(rowdict={'Name': name, 'Event': event_text, 'Time': current_time})
+		writer: csv.DictWriter[str] = csv.DictWriter(
+			f=csvfile, fieldnames=['Name', 'Event', 'Time']
+		)
+		writer.writerow(
+			rowdict={'Name': name, 'Event': event_text, 'Time': current_time}
+		)
 
 
 def update_log(present: list[str]) -> None:
@@ -139,7 +143,7 @@ def update_log(present: list[str]) -> None:
 
 	# Check for first appearance
 	for name in set(present) - log.keys():
-		if not name in log:
+		if name not in log:
 			log[name] = Person(present=True)
 			write_to_csv(name=name, event=True)
 
@@ -183,8 +187,8 @@ with open(file=CSV_PATH, mode='w') as csvfile:
 # Name and info
 log: dict[str, Person] = {}
 
-VideoProcessor.process_video(
+VP.process_video(
 	VIDEO_SOURCE,
 	callback=face_detection,
-	display_config=VideoProcessor.DisplayConfig.OpenCV(frametime=1./60)
+	display_config=VP.DisplayConfig.OpenCV(frametime=1./60)
 )
