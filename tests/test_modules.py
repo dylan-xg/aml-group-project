@@ -1,10 +1,10 @@
-
-from pathlib import Path
 import logging
+from pathlib import Path
 
 from panopticon.modules import KerasModule
 
-TEST_MODEL = Path('src/panopticon/model_weights/expression9_orig_longrun.keras')
+
+TEST_MODEL = Path("src/panopticon/model_weights/expression9_orig_longrun.keras")
 
 
 def test_module_instance():
