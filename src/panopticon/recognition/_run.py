@@ -2,11 +2,7 @@
 
 from typing import Any as _Any, cast as _cast
 
-import os
-from pathlib import Path
-
 import pandas as _pd
-import cv2
 from deepface import DeepFace as _DeepFace
 from deepface.modules.exceptions import (
 	DimensionMismatchError as _DimensionMismatchError,
@@ -25,19 +21,23 @@ from panopticon.modules import run_enabled_modules as _run_enabled_modules
 from panopticon.settings import SETTINGS as _SETTINGS
 from panopticon.typing import Frame as _Frame
 
-REGISTRATION_MODE: bool = False
-REGISTRATION_NAME: str | None = None
-REGISTRATION_FRAMES: list[_Frame] = []
-REGISTRATION_TARGET_SAMPLES: int = 15
+from ._registration import NewFace as _NewFace
 
-def _handle_face(dataframe: _pd.DataFrame, frame: _Frame) -> _Face:
-	UNKNOWN_THRESHOLD = 0.40
+
+# The existence of this determines registration mode.
+registration_face: _NewFace | None
+
+
+def _handle_face(dataframe: _pd.DataFrame, frame: _Frame):
+	"""Create a Face object for the passed in data.
+
+	This will be used for the modules, and drawing onto the frame.
+	"""
+	# TODO Instead of passing a full dataframe,
+	# pass only the necessary info to construct a Face.
 
 	# Getting the best result.
 	matched_face: _pd.Series[_Any] = dataframe.iloc[0]
-
-	# Get the similarity distance
-	distance: float = matched_face["distance"]
 
 	def _read_dataframe(
 		identity: str, left: str, top: str, width: str, height: str
@@ -63,32 +63,97 @@ def _handle_face(dataframe: _pd.DataFrame, frame: _Frame) -> _Face:
 		FIND_LABELS = ("identity", "source_x", "source_y", "source_w", "source_h")
 		identity, left, top, right, bottom = _read_dataframe(*FIND_LABELS)
 
+	# Get the similarity distance
+	distance: float = matched_face["distance"]
+
 	# If the match is too weak, mark it as Unknown
-	if distance > UNKNOWN_THRESHOLD:
-		identity = _Text("Unknown")
+	if distance > _SETTINGS.UNKNOWN_THRESHOLD:
+		identity = _Text(label="Unknown")
 
 	face_box: _Box = _Box(left=left, top=top, right=right, bottom=bottom)
 	cropped_frame: _Frame = frame[left:right, top:bottom]
-	return _Face(image=cropped_frame, box=face_box, texts=[identity])
+	return _Face(image=cropped_frame, box=face_box, texts=[identity]), distance
 
-def _finalize_registration():
-    global REGISTRATION_MODE, REGISTRATION_FRAMES, REGISTRATION_NAME
 
-    if not REGISTRATION_NAME:
-        return
+def _process_dataframe(dataframes: list[_pd.DataFrame], /):
+	"""Read in the list of dataframe, extract a representation for each face."""
+	if len(dataframes) == 0:
+		return
 
-    save_dir = Path(_SETTINGS.LOCAL_DATABASE_PATH) / REGISTRATION_NAME
-    save_dir.mkdir(parents=True, exist_ok=True)
+	for df in dataframes:
+		# Maybe use df.groupby()?
+		best_match: _pd.Series[_Any] = df.iloc[0]
+		known_faces = best_match[best_match["distance"] > _SETTINGS.UNKNOWN_THRESHOLD]
+		unknown_faces = best_match[
+			best_match["distance"] <= _SETTINGS.UNKNOWN_THRESHOLD
+		]
 
-    for i, frame in enumerate(REGISTRATION_FRAMES):
-        file_path = save_dir / f"{REGISTRATION_NAME}_{i}.jpg"
-        cv2.imwrite(str(file_path), frame)
+	# Create a representation for all faces, tagging them as either known or unknown.
 
-    REGISTRATION_MODE = False
-    REGISTRATION_FRAMES = []
-    REGISTRATION_NAME = None
+
+def _process_faces(frame: _Frame, drawer: _Drawer, faces: list[_pd.DataFrame] | None):
+	"""idk this is basically just an inner function to allow dropout returns
+	that still provoke the drawer."""
+	global registration_face
+
+	if faces is None:
+		if registration_face is not None:
+			msg = "Registration: No face detected"
+		else:
+			msg = "No faces detected"
+		drawer.texts = _Text(label=msg, scale=2, position=(5, frame.shape[:1][0] - 10))
+		return
+
+	# The result of this should be used to improve the above and below code.
+	_process_dataframe(faces)
+
+	unknown_faces: list[tuple[_Face, float]] = []
+	for detected_face in faces:
+		if detected_face.empty:
+			print("Empty")
+			continue
+
+		face, dist = _handle_face(dataframe=detected_face, frame=frame)
+
+		if registration_face is not None:
+			if face.get_name() == "Unknown":
+				unknown_faces.append((face, dist))
+
+		drawer.faces = face
+
+	_run_enabled_modules(drawer=drawer)
+
+	if len(unknown_faces) == 0:
+		drawer.texts = _Text(
+			label="Registration: No unknown face detected",
+			scale=2,
+			position=(5, frame.shape[0] - 10),
+		)
+
+	if len(unknown_faces) > 1:
+		drawer.texts = _Text(
+			label="Registration: Multiple unknown faces detected",
+			scale=2,
+			position=(5, frame.shape[0] - 10),
+		)
+
+	if registration_face is not None:
+		registration_face.consider_new_face(
+			unknown_faces[0][0].image, unknown_faces[0][1]
+		)
+
+		drawer.texts = _Text(
+			label=(
+				f"Registering {registration_face.name} "
+				f"({len(registration_face.images)}/{_SETTINGS.NUM_REGISTRATION_IMAGES})"
+			),
+			scale=2,
+			position=(5, frame.shape[0] - 10),
+		)
+
 
 def _get_faces(frame: _Frame, /) -> list[_pd.DataFrame] | None:
+	"""Call deepface with the frame and standardise the result."""
 	try:
 		if _SETTINGS.USE_POSTGRES_DB:
 			detected_faces: list[_pd.DataFrame] = _DeepFace.search(
@@ -118,7 +183,7 @@ def _get_faces(frame: _Frame, /) -> list[_pd.DataFrame] | None:
 
 			detected_faces = _cast(list[_pd.DataFrame], dfs)
 
-		return detected_faces if len(detected_faces) > 1 else None
+		return detected_faces if len(detected_faces) > 0 else None
 
 	except _EmptyDatasource:
 		# No images in local database, we don't care about this.
@@ -138,7 +203,8 @@ def _get_faces(frame: _Frame, /) -> list[_pd.DataFrame] | None:
 			msg in str(e.args[0])
 			for msg in [
 				"No embeddings found in the database for the criteria",
-				"You must call register some embeddings to the database before using search.",
+				"You must call register some embeddings "
+				"to the database before using search.",
 			]
 		):
 			return None
@@ -150,61 +216,16 @@ def _get_faces(frame: _Frame, /) -> list[_pd.DataFrame] | None:
 
 
 def detect_in_frame(frame: _Frame) -> _Frame:
+	"""Callback for each frame.
+	Returns a frame that has been drawn on.
+	"""
 	faces: list[_pd.DataFrame] | None = _get_faces(frame)
-
 	drawer: _Drawer = _Drawer()
-
-	if REGISTRATION_MODE:
-		if faces is None:
-			drawer.texts = _Text(
-				label="Regisration: No face detected", scale=2, position=(5, frame.shape[0] - 10)
-			)
-			return drawer.draw_onto_frame(frame)
-		
-		unknown_faces = []
-
-		for df in faces:
-			if df.empty:
-				continue
-
-			face = _handle_face(df, frame)
-
-			if face.texts[0].label == "Unknown":
-				unknown_faces.append(face)
-		
-		if len(unknown_faces) == 0:
-			drawer.texts = _Text(
-				label="Registration: No unknown face detected", scale=2, position=(5, frame.shape[0] - 10)
-			)
-			return drawer.draw_onto_frame(frame)
-		
-		if len(unknown_faces) > 1:
-			drawer.texts = _Text(
-				label="Registration: Multiple unknown faces detected", scale=2, position=(5, frame.shape[0] - 10)
-			)
-			return drawer.draw_onto_frame(frame)
-
-		REGISTRATION_FRAMES.append(frame.copy())
-
-		progress = len(REGISTRATION_FRAMES)
-
-		drawer.texts = _Text(
-			label=f"Registering {REGISTRATION_NAME} ({progress}/{REGISTRATION_TARGET_SAMPLES})", scale=2, position=(5, frame.shape[0] - 10)
-		)
-		return drawer.draw_onto_frame(frame)		
-
-	if faces is None:
-		drawer.texts = _Text(
-			label="No faces detected", scale=2, position=(5, frame.shape[:1][0] - 10)
-		)
-		return drawer.draw_onto_frame(frame)
-
-	for detected_face in faces:
-		if detected_face.empty:
-			print("Empty")
-			continue
-		drawer.faces = _handle_face(dataframe=detected_face, frame=frame)
-
-	_run_enabled_modules(drawer=drawer)
-
+	_process_faces(frame=frame, drawer=drawer, faces=faces)
 	return drawer.draw_onto_frame(frame)
+
+
+def enable_registration_mode(name: str, /) -> None:
+	"""Callback to start registration of a new face."""
+	global registration_face
+	registration_face = _NewFace(name)
