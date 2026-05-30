@@ -19,7 +19,8 @@ type ModuleStateCallback = _Callable[[bool], None]
 """A callback function to report the current state of the module."""
 
 type ButtonCommandWithStateCallback = _Callable[[ModuleStateCallback], None]
-"""An expanded button command that has an input for the :func:`ModuleStateCallback` function."""
+"""An expanded button command that has an input
+for the :func:`ModuleStateCallback` function."""
 
 type Colour = tuple[int, int, int]
 """Colour type used by OpenCV.
