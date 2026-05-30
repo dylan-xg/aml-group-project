@@ -25,13 +25,14 @@ from panopticon.modules import run_enabled_modules as _run_enabled_modules
 from panopticon.settings import SETTINGS as _SETTINGS
 from panopticon.typing import Frame as _Frame
 
+
 REGISTRATION_MODE: bool = False
 REGISTRATION_NAME: str | None = None
 REGISTRATION_FRAMES: list[_Frame] = []
 REGISTRATION_TARGET_SAMPLES: int = 15
 
 def _handle_face(dataframe: _pd.DataFrame, frame: _Frame) -> _Face:
-	UNKNOWN_THRESHOLD = 0.40
+	UNKNOWN_THRESHOLD = 0.4
 
 	# Getting the best result.
 	matched_face: _pd.Series[_Any] = dataframe.iloc[0]
@@ -79,14 +80,29 @@ def _finalize_registration():
 
     save_dir = Path(_SETTINGS.LOCAL_DATABASE_PATH) / REGISTRATION_NAME
     save_dir.mkdir(parents=True, exist_ok=True)
-
     for i, frame in enumerate(REGISTRATION_FRAMES):
         file_path = save_dir / f"{REGISTRATION_NAME}_{i}.jpg"
         cv2.imwrite(str(file_path), frame)
 
+        if _SETTINGS.USE_POSTGRES_DB:
+            _DeepFace.register(
+                img=str(file_path),
+				img_name=REGISTRATION_NAME,
+				model_name=_SETTINGS.MODEL_NAME,
+				detector_backend=_SETTINGS.DETECTOR_BACKEND,
+				enforce_detection=False,
+				normalization=_SETTINGS.MODEL_NAME,
+			)
+
+    if _SETTINGS.USE_POSTGRES_DB:
+        _DeepFace.build_index(
+			model_name=_SETTINGS.MODEL_NAME,
+		)
+
     REGISTRATION_MODE = False
     REGISTRATION_FRAMES = []
     REGISTRATION_NAME = None
+
 
 def _get_faces(frame: _Frame, /) -> list[_pd.DataFrame] | None:
 	try:
@@ -117,8 +133,7 @@ def _get_faces(frame: _Frame, /) -> list[_pd.DataFrame] | None:
 				raise Exception("Doing batched for some reason")
 
 			detected_faces = _cast(list[_pd.DataFrame], dfs)
-
-		return detected_faces if len(detected_faces) > 1 else None
+		return detected_faces if len(detected_faces) > 0 else None ##used to be > 1??
 
 	except _EmptyDatasource:
 		# No images in local database, we don't care about this.
@@ -150,55 +165,30 @@ def _get_faces(frame: _Frame, /) -> list[_pd.DataFrame] | None:
 
 
 def detect_in_frame(frame: _Frame) -> _Frame:
-	faces: list[_pd.DataFrame] | None = _get_faces(frame)
-
 	drawer: _Drawer = _Drawer()
 
 	if REGISTRATION_MODE:
-		if faces is None:
-			drawer.texts = _Text(
-				label="Regisration: No face detected", scale=2, position=(5, frame.shape[0] - 10)
-			)
-			return drawer.draw_onto_frame(frame)
-		
-		unknown_faces = []
-
-		for df in faces:
-			if df.empty:
-				continue
-
-			face = _handle_face(df, frame)
-
-			if face.texts[0].label == "Unknown":
-				unknown_faces.append(face)
-		
-		if len(unknown_faces) == 0:
-			drawer.texts = _Text(
-				label="Registration: No unknown face detected", scale=2, position=(5, frame.shape[0] - 10)
-			)
-			return drawer.draw_onto_frame(frame)
-		
-		if len(unknown_faces) > 1:
-			drawer.texts = _Text(
-				label="Registration: Multiple unknown faces detected", scale=2, position=(5, frame.shape[0] - 10)
-			)
-			return drawer.draw_onto_frame(frame)
-
+		global REGISTRATION_FRAMES
 		REGISTRATION_FRAMES.append(frame.copy())
-
 		progress = len(REGISTRATION_FRAMES)
+		if progress >= REGISTRATION_TARGET_SAMPLES:
+			name = REGISTRATION_NAME
 
+			_finalize_registration()
+			drawer.texts = _Text(label=f"Registered {name}", scale=2, position=(5, frame.shape[0] - 10))
+
+			return drawer.draw_onto_frame(frame)
 		drawer.texts = _Text(
-			label=f"Registering {REGISTRATION_NAME} ({progress}/{REGISTRATION_TARGET_SAMPLES})", scale=2, position=(5, frame.shape[0] - 10)
-		)
-		return drawer.draw_onto_frame(frame)		
+			label=f"Registering {REGISTRATION_NAME} ({progress}/{REGISTRATION_TARGET_SAMPLES})", scale=2, position=(5, frame.shape[0] - 10))
+		return drawer.draw_onto_frame(frame)
+	
+	faces: list[_pd.DataFrame] | None = _get_faces(frame)
 
 	if faces is None:
 		drawer.texts = _Text(
 			label="No faces detected", scale=2, position=(5, frame.shape[:1][0] - 10)
 		)
 		return drawer.draw_onto_frame(frame)
-
 	for detected_face in faces:
 		if detected_face.empty:
 			print("Empty")
