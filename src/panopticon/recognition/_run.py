@@ -128,10 +128,13 @@ def _get_faces(frame: _Frame, /) -> list[_pd.DataFrame] | None:
 def detect_in_frame(frame: _Frame) -> _Frame:
 	faces: list[_pd.DataFrame] | None = _get_faces(frame)
 
-	if faces is None:
-		return frame
-
 	drawer: _Drawer = _Drawer()
+
+	if faces is None:
+		drawer.texts = _Text(
+			label="No faces detected", scale=2, position=(5, frame.shape[:1][0] - 10)
+		)
+		return drawer.draw_onto_frame(frame)
 
 	for detected_face in faces:
 		if detected_face.empty:
