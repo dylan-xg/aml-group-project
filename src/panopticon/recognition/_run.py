@@ -97,7 +97,7 @@ def _get_faces(frame: _Frame, /) -> list[_pd.DataFrame] | None:
 		return detected_faces if len(detected_faces) > 1 else None
 
 	except _EmptyDatasource:
-		# We don't care about this.
+		# No images in local database, we don't care about this.
 		return None
 	except _DimensionMismatchError as e:
 		print(f"Frame dimensions incorrect: {e}")
@@ -108,8 +108,21 @@ def _get_faces(frame: _Frame, /) -> list[_pd.DataFrame] | None:
 	except _PathNotFound as e:
 		print(f"Error reading path: {e}")
 		quit()
+	except ValueError as e:
+		# No embeddings in postgres database, we don't care about this.
+		if any(
+			msg in str(e.args[0])
+			for msg in [
+				"No embeddings found in the database for the criteria",
+				"You must call register some embeddings to the database before using search.",
+			]
+		):
+			return None
+		else:
+			# Pass it down if it is a different exception.
+			raise
 	except Exception as e:
-		print(f"Unknown exception {e}")
+		print(f"Unexpected {type(e)}: {e}")
 
 
 def detect_in_frame(frame: _Frame) -> _Frame:

@@ -4,6 +4,7 @@ It should detect all faces, recognise known faces, and locate them within the fr
 """
 
 import numpy as _np
+from deepface import DeepFace as _DeepFace
 from deepface.models.FacialRecognition import FacialRecognition as _FacialRecognition
 from deepface.modules import (
 	modeling as _modeling,
@@ -18,6 +19,7 @@ from ._model import CustomClassifierEmbeddingModel as _CustomClassifierEmbedding
 
 
 def add_model_to_deepface(model: _CustomClassifierEmbeddingModel, /) -> None:
+
 	class NewModelClient(_FacialRecognition):
 		def __init__(self) -> None:
 			self.model = model.embedding_model
@@ -31,7 +33,8 @@ def add_model_to_deepface(model: _CustomClassifierEmbeddingModel, /) -> None:
 
 			if img.ndim != 4:
 				raise ValueError(
-					f"Input image must be shaped like (batch, X, X, 3), but got {img.shape}"
+					f"Input image must be shaped like (batch, X, X, 3), "
+					f"but got {img.shape}"
 				)
 
 			embeddings = self.model(img, training=False)
@@ -49,8 +52,6 @@ def add_model_to_deepface(model: _CustomClassifierEmbeddingModel, /) -> None:
 	_thresholds[model.name] = model.thresholds
 	_confidences.update(model.confidences)
 
-
-def custom_normalisation(model) -> None:
 	original_normalise_input = _preprocessing.normalize_input
 
 	def custom_normalize_input(img, normalization="base"):
@@ -60,6 +61,8 @@ def custom_normalisation(model) -> None:
 		return original_normalise_input(img=img, normalization=normalization)
 
 	_preprocessing.normalize_input = custom_normalize_input
+
+	_DeepFace.build_model(model_name=model.name)
 
 
 ##def add_example_model_to_deepface(model) -> None:
