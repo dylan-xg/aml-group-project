@@ -9,4 +9,5 @@ from ._model import (
 	CustomClassifierEmbeddingModel as CustomClassifierEmbeddingModel,
 	ExampleModel as ExampleModel,
 )
-from ._run import detect_in_frame as detect_in_frame
+from ._registration import NewFace as NewFace
+from ._run import FaceRecognitionSystem as FaceRecognitionSystem

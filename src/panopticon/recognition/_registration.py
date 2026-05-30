@@ -8,8 +8,8 @@ from panopticon.typing import Frame as _Frame
 
 
 # Temporary and for reference only, proper implementation will be in a different module
-def register(name: str, frames: list[_Frame]):
-	for i, f in enumerate(frames):
+def register(name: str, frames: list[_Frame]) -> None:
+	for i, f in enumerate(iterable=frames):
 		_DeepFace.register(
 			img=f,
 			img_name=f"{name}_{i}",
@@ -26,20 +26,33 @@ class NewFace:
 		self.name: str = name
 		self.images: list[_Frame] = []
 
-	def consider_new_face(self, frame: _Frame, distance: float):
-		"""If the distance is acceptable, save the frame."""
-		_SETTINGS.REGISTRATION_THRESHOLD_MIN
-		_SETTINGS.REGISTRATION_THRESHOLD_MAX
-		_SETTINGS.NUM_REGISTRATION_IMAGES
+	def consider_new_face(self, frame: _Frame, distance: float) -> bool:
+		"""Evaluate the unknown face and store it if it meets requirements.
 
-	def finalise_registration(self):
-		if _SETTINGS.USE_POSTGRES_DB:
-			# TODO Will call an external function simiar to above.
-			register(self.name, self.images)
-			pass
+		Returns
+		-------
+		bool
+			True if the required number of images has been collected, False otherwise.
+		"""
+		# Unrecognised due to an empty database will return infinity;
+		# bypass bounds check to guarantee saving.
+		if distance == float("inf") or (
+			_SETTINGS.REGISTRATION_THRESHOLD_MIN
+			<= distance
+			<= _SETTINGS.REGISTRATION_THRESHOLD_MAX
+		):
+			self.images.append(frame)
+
+		return len(self.images) >= _SETTINGS.NUM_REGISTRATION_IMAGES
+
+	def finalise_registration(self) -> None:
+		"""Save the collected images to the database or local directory."""
+		if _SETTINGS.USE_POSTGRES_DB is True:
+			register(name=self.name, frames=self.images)
 		else:
-			save_dir = _Path(_SETTINGS.LOCAL_DATABASE_PATH) / self.name
+			save_dir: _Path = _Path(_SETTINGS.LOCAL_DATABASE_PATH) / self.name
 			save_dir.mkdir(parents=True, exist_ok=True)
+
 			for i, frame in enumerate(self.images):
-				file_path = save_dir / f"{self.name}_{i}.png"
-				_cv2.imwrite(str(file_path), frame)
+				file_path: _Path = save_dir / f"{self.name}_{i}.png"
+				_cv2.imwrite(filename=str(file_path), img=frame)

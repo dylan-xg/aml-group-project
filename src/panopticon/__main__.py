@@ -3,8 +3,8 @@
 from .modules import LOADED_MODULES
 from .recognition import (
 	CustomClassifierEmbeddingModel,
+	FaceRecognitionSystem,
 	add_model_to_deepface,
-	detect_in_frame,
 )
 from .settings import SETTINGS
 from .ui import UserInterface
@@ -18,7 +18,7 @@ add_model_to_deepface(
 
 video_feed = VideoFeed(
 	capture_location=SETTINGS.input_source(),
-	callback=detect_in_frame,
+	callback=FaceRecognitionSystem.detect_in_frame,
 	frametime=1.0 / SETTINGS.FRAMERATE,
 )
 

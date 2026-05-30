@@ -5,13 +5,12 @@ from tkinter import ttk as _ttk
 from typing import Iterable as _Iterable
 
 from panopticon.modules import BaseModule as _BaseModule
-from panopticon.recognition import enable_registration_mode as _enable_registration_mode
+from panopticon.recognition import FaceRecognitionSystem as _FaceRecognitionSystem
 from panopticon.settings import SETTINGS as _SETTINGS
 from panopticon.video_feed import VideoFeed as VideoFeed
 
 from ._button import Button as _Button
 from ._video_widget import VideoWidget as _VideoWidget
-
 
 
 class UserInterface:
@@ -149,10 +148,7 @@ class UserInterface:
 			return
 
 		print(f"Registering {name}...")
-		_run.REGISTRATION_MODE = True
-		_run.REGISTRATION_NAME = name.strip()
-		_run.REGISTRAION_FRAMES = []
-
+		_FaceRecognitionSystem.enable_registration_mode(name.strip())
 		popup.destroy()
 
 	# START UI
