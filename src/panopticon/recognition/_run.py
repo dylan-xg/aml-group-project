@@ -19,6 +19,7 @@ from panopticon.typing import Frame as _Frame
 def _handle_face(dataframe: _pd.DataFrame, frame: _Frame) -> _Face:
 	# Getting the best result.
 	matched_face: _pd.Series[_Any] = dataframe.iloc[0]
+	# TODO handle unknown face.
 
 	def _read_dataframe(
 		identity: str, left: str, top: str, width: str, height: str
