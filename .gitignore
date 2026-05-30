@@ -15,3 +15,6 @@ __pycache__/
 /data/datasets/**
 # Add a link to them for others to download locally in this file
 !/data/datasets/list.md
+
+#For annoying macos files
+.DS_Store
