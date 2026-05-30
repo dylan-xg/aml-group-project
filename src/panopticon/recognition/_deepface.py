@@ -14,12 +14,10 @@ from deepface.modules.verification import (
 	thresholds as _thresholds,
 )
 
-from panopticon.settings import SETTINGS as _SETTINGS
-
 from ._model import CustomClassifierEmbeddingModel as _CustomClassifierEmbeddingModel
 
 
-def add_model_to_deepface(model: _CustomClassifierEmbeddingModel) -> None:
+def add_model_to_deepface(model: _CustomClassifierEmbeddingModel, /) -> None:
 	class NewModelClient(_FacialRecognition):
 		def __init__(self) -> None:
 			self.model = model.embedding_model
@@ -46,7 +44,7 @@ def add_model_to_deepface(model: _CustomClassifierEmbeddingModel) -> None:
 
 			return embeddings.tolist()  # type: ignore
 
-	_modeling.AVAILABLE_MODELS[_SETTINGS.MODEL_NAME][model.name] = NewModelClient
+	_modeling.AVAILABLE_MODELS["facial_recognition"][model.name] = NewModelClient
 
 	_thresholds[model.name] = model.thresholds
 	_confidences.update(model.confidences)

@@ -91,7 +91,7 @@ class _Settings(_BaseSettings):
 	TOP_K: _Annotated[int, _Field(frozen=True, gt=0)] = 1
 	"""How many matches to return for each face."""
 
-	MODEL_NAME: _Annotated[str, _Field(frozen=True)] = "face_classifier"
+	MODEL_NAME: _Annotated[str, _Field(frozen=True)] = "CustomClassifierEmbeddingModel"
 	"""The name used to identify our model in DeepFace."""
 
 	def input_source(self) -> int | _Path:
