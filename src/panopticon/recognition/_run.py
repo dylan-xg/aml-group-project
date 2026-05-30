@@ -2,7 +2,11 @@
 
 from typing import Any as _Any, cast as _cast
 
+import os
+from pathlib import Path
+
 import pandas as _pd
+import cv2
 from deepface import DeepFace as _DeepFace
 from deepface.modules.exceptions import (
 	DimensionMismatchError as _DimensionMismatchError,
@@ -21,6 +25,10 @@ from panopticon.modules import run_enabled_modules as _run_enabled_modules
 from panopticon.settings import SETTINGS as _SETTINGS
 from panopticon.typing import Frame as _Frame
 
+REGISTRATION_MODE: bool = False
+REGISTRATION_NAME: str | None = None
+REGISTRATION_FRAMES: list[_Frame] = []
+REGISTRATION_TARGET_SAMPLES: int = 15
 
 def _handle_face(dataframe: _pd.DataFrame, frame: _Frame) -> _Face:
 	UNKNOWN_THRESHOLD = 0.40
@@ -63,6 +71,22 @@ def _handle_face(dataframe: _pd.DataFrame, frame: _Frame) -> _Face:
 	cropped_frame: _Frame = frame[left:right, top:bottom]
 	return _Face(image=cropped_frame, box=face_box, texts=[identity])
 
+def _finalize_registration():
+    global REGISTRATION_MODE, REGISTRATION_FRAMES, REGISTRATION_NAME
+
+    if not REGISTRATION_NAME:
+        return
+
+    save_dir = Path(_SETTINGS.LOCAL_DATABASE_PATH) / REGISTRATION_NAME
+    save_dir.mkdir(parents=True, exist_ok=True)
+
+    for i, frame in enumerate(REGISTRATION_FRAMES):
+        file_path = save_dir / f"{REGISTRATION_NAME}_{i}.jpg"
+        cv2.imwrite(str(file_path), frame)
+
+    REGISTRATION_MODE = False
+    REGISTRATION_FRAMES = []
+    REGISTRATION_NAME = None
 
 def _get_faces(frame: _Frame, /) -> list[_pd.DataFrame] | None:
 	try:
@@ -129,6 +153,45 @@ def detect_in_frame(frame: _Frame) -> _Frame:
 	faces: list[_pd.DataFrame] | None = _get_faces(frame)
 
 	drawer: _Drawer = _Drawer()
+
+	if REGISTRATION_MODE:
+		if faces is None:
+			drawer.texts = _Text(
+				label="Regisration: No face detected", scale=2, position=(5, frame.shape[0] - 10)
+			)
+			return drawer.draw_onto_frame(frame)
+		
+		unknown_faces = []
+
+		for df in faces:
+			if df.empty:
+				continue
+
+			face = _handle_face(df, frame)
+
+			if face.texts[0].label == "Unknown":
+				unknown_faces.append(face)
+		
+		if len(unknown_faces) == 0:
+			drawer.texts = _Text(
+				label="Registration: No unknown face detected", scale=2, position=(5, frame.shape[0] - 10)
+			)
+			return drawer.draw_onto_frame(frame)
+		
+		if len(unknown_faces) > 1:
+			drawer.texts = _Text(
+				label="Registration: Multiple unknown faces detected", scale=2, position=(5, frame.shape[0] - 10)
+			)
+			return drawer.draw_onto_frame(frame)
+
+		REGISTRATION_FRAMES.append(frame.copy())
+
+		progress = len(REGISTRATION_FRAMES)
+
+		drawer.texts = _Text(
+			label=f"Registering {REGISTRATION_NAME} ({progress}/{REGISTRATION_TARGET_SAMPLES})", scale=2, position=(5, frame.shape[0] - 10)
+		)
+		return drawer.draw_onto_frame(frame)		
 
 	if faces is None:
 		drawer.texts = _Text(
