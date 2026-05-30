@@ -181,7 +181,7 @@ class Drawer:
 	_faces: list[Face] = []
 	_texts: list[Text] = []
 
-	# TODO All of these properties are bad
+	# FIX All of these properties are bad
 	@property
 	def faces(self) -> list[Face]:
 		return self._faces

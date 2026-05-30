@@ -1,6 +1,6 @@
 """A collection of functions to loading and using modules."""
 
-# TODO Could analysis be run asynchronous from the framerate?
+# IDEA Could analysis be run asynchronous from the framerate?
 
 from pathlib import Path as _Path
 from typing import Iterable as _Iterable
