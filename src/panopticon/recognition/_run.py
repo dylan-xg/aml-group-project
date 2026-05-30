@@ -17,9 +17,13 @@ from panopticon.typing import Frame as _Frame
 
 
 def _handle_face(dataframe: _pd.DataFrame, frame: _Frame) -> _Face:
+	UNKNOWN_THRESHOLD = 0.40
+	
 	# Getting the best result.
 	matched_face: _pd.Series[_Any] = dataframe.iloc[0]
-	# TODO handle unknown face.
+
+	# Get the similarity distance
+	distance: float = matched_face["distance"]
 
 	def _read_dataframe(
 		identity: str, left: str, top: str, width: str, height: str
@@ -44,6 +48,10 @@ def _handle_face(dataframe: _pd.DataFrame, frame: _Frame) -> _Face:
 		# DeepFace.find dataframe options.
 		FIND_LABELS = ("identity", "source_x", "source_y", "source_w", "source_h")
 		identity, left, top, right, bottom = _read_dataframe(*FIND_LABELS)
+
+	# If the match is too weak, mark it as Unknown
+	if distance > UNKNOWN_THRESHOLD:
+		identity = "Unknown"
 
 	face_box: _Box = _Box(left=left, top=top, right=right, bottom=bottom)
 	cropped_frame: _Frame = frame[left:right, top:bottom]
