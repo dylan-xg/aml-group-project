@@ -92,8 +92,8 @@ class Face:
 		padding_text_y: int = PADDING_DEFAULT_VERTICAL,
 	) -> None:
 		self._image = image
-		self._box = box
-		self._texts = texts
+		self._box: Box = box
+		self._texts: list[Text] = texts
 
 		##self.padding_box_x: int = PADDING_DEFAULT_HORIZONTAL # Unused
 		self.padding_box_y: int = padding_box_y
@@ -112,6 +112,9 @@ class Face:
 	@property
 	def texts(self) -> list[Text]:
 		return self._texts
+
+	def get_name(self) -> str:
+		return self._texts[0].label
 
 	def draw_onto_frame(self, frame: _Frame, /) -> _Frame:
 		frame = self._box.draw_onto_frame(frame)
