@@ -45,7 +45,7 @@ class EmotionModule(_BaseModule):
 	IMG_LENGTH = 128
 	IMG_SIZE = (IMG_LENGTH, IMG_LENGTH)
 
-	EMOTION_LABELS = ["Angry", "Disgust", "Fear", "Happy", "Sad", "Surprise", "Neutral"]
+	EMOTION_LABELS = ["Angry", "Contempt", "Disgust", "Fear", "Happy", "Natural", "Sad", "Sleepy","Surprised"]
 
 	@_override
 	def load_model(self) -> _Self:
@@ -70,8 +70,8 @@ class EmotionModule(_BaseModule):
 			raise ValueError("Model not loaded")
 		emotion_faces = self.preprocess_faces(faces)
 		results: _tf.Tensor = self.model(emotion_faces, training=False)
-		# TODO Use the labels
-		return [str(r[0]) for r in results.numpy()]
+
+		return [self.EMOTION_LABELS[prediction.argmax()] for prediction in results.numpy()]
 
 
 @_kw_dataclass
