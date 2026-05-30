@@ -12,7 +12,7 @@ from src.panopticon.typing import (
 
 
 COLOUR_DEFAULT_BOX: _Colour = (0, 0, 255)  # BGR format
-COLOUR_DEFAULT_TEXT: _Colour = (0, 0, 0)  # BGR format
+COLOUR_DEFAULT_TEXT: _Colour = (0, 0, 200)  # BGR format
 FONT = _cv.FONT_HERSHEY_SIMPLEX
 PADDING_DEFAULT_VERTICAL = 5
 PADDING_DEFAULT_HORIZONTAL = 5
