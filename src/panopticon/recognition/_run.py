@@ -18,7 +18,7 @@ from panopticon.typing import Frame as _Frame
 
 def _handle_face(dataframe: _pd.DataFrame, frame: _Frame) -> _Face:
 	UNKNOWN_THRESHOLD = 0.40
-	
+
 	# Getting the best result.
 	matched_face: _pd.Series[_Any] = dataframe.iloc[0]
 
@@ -51,7 +51,7 @@ def _handle_face(dataframe: _pd.DataFrame, frame: _Frame) -> _Face:
 
 	# If the match is too weak, mark it as Unknown
 	if distance > UNKNOWN_THRESHOLD:
-		identity = "Unknown"
+		identity = _Text("Unknown")
 
 	face_box: _Box = _Box(left=left, top=top, right=right, bottom=bottom)
 	cropped_frame: _Frame = frame[left:right, top:bottom]
