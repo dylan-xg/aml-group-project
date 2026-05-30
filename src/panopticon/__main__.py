@@ -11,11 +11,12 @@ from .ui import UserInterface
 from .video_feed import VideoFeed
 
 
-#add_model_to_deepface(CustomClassifierEmbeddingModel())
+model_path = SETTINGS.MODEL_WEIGHTS_LOCATION / "final_face_embedding_model.keras"
+add_model_to_deepface(CustomClassifierEmbeddingModel(SETTINGS.MODEL_NAME, model_path))
 
 video_feed = VideoFeed(
 	capture_location=SETTINGS.input_source(),
-	#callback=detect_in_frame,
+	callback=detect_in_frame,
 	frametime=1.0 / SETTINGS.FRAMERATE,
 )
 

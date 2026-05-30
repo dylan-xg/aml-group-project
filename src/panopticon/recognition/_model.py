@@ -9,20 +9,15 @@ from keras.src import Functional as _Functional
 class ExampleModel:
 	"""For testing."""
 
-	def __init__(self, name: str = "", model_path: str | _Path = "") -> None:
+	def __init__(self, name: str, input_shape: tuple[int, int, int]) -> None:
 		self.name = name
-		self.model_path = _Path(model_path)
 
-		self.embedding_model: _Functional = _keras.models.load_model(  # type: ignore
-			model_path, compile=False
-		)
+		#self.input_shape = self.embedding_model.input_shape[1:3]
+		#self.output_shape = self.embedding_model.output_shape[-1]
 
-		self.input_shape = self.embedding_model.input_shape[1:3]
-		self.output_shape = self.embedding_model.output_shape[-1]
-
-		self.IMG_SIZE = self.input_shape
-		self.IMG_LENGTH = self.IMG_SIZE[0]
-		self.IMG_SHAPE = self.embedding_model.input_shape[1:]
+		#self.IMG_SIZE = self.input_shape
+		#self.IMG_LENGTH = self.IMG_SIZE[0]
+		#self.IMG_SHAPE = self.embedding_model.input_shape[1:]
 
 		self.normalization = self.name
 		# example values
@@ -38,15 +33,15 @@ class ExampleModel:
 		# preprocess_layer = _keras.applications.mobilenet_v2.preprocess_input
 		# weights = _keras.applications.MobileNetV2(
 		# include_top=False,
-		# input_shape=self.IMG_SHAPE
+		# input_shape=input_shape
 		# )
 		weights: _Functional = _keras.applications.EfficientNetV2B2(
-			include_top=False, input_shape=self.IMG_SHAPE
+			include_top=False, input_shape=input_shape
 		)
 		weights.trainable = False
 		globalavg_layer = _keras.layers.GlobalAveragePooling2D()
 
-		inputs = _keras.Input(shape=self.IMG_SHAPE)
+		inputs = _keras.Input(shape=input_shape)
 		# x: _Any = preprocess_layer(inputs)
 		x = weights(inputs, training=False)
 		latent_dim = globalavg_layer(x)
@@ -65,12 +60,12 @@ class ExampleModel:
 class CustomClassifierEmbeddingModel:
 	def __init__(
 		self,
-		name: str = "CustomClassifierEmbeddingModel",
-		model_path: str
-		| _Path = "src/panopticon/model_weights/final_face_embedding_model._keras",
+		name: str,
+		model_path: str | _Path,
 	) -> None:
 		self.name = name
-		self.model_path = _Path(model_path)
+		if isinstance(model_path, str):
+			model_path = _Path(model_path)
 
 		self.embedding_model: _Functional = _keras.models.load_model(  # type: ignore
 			model_path, compile=False
