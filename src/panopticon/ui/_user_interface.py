@@ -12,6 +12,7 @@ from ._video_widget import VideoWidget
 
 from panopticon.recognition import _run
 
+
 class UserInterface:
 	def __init__(
 		self,
@@ -138,7 +139,6 @@ class UserInterface:
 			return
 
 		print(f"Registering {name}...")
-
 		_run.REGISTRATION_MODE = True
 		_run.REGISTRATION_NAME = name.strip()
 		_run.REGISTRAION_FRAMES = []
