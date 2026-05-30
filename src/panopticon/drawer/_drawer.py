@@ -178,8 +178,11 @@ class Face:
 
 class Drawer:
 	# Could use sets with tuples
-	_faces: list[Face] = []
-	_texts: list[Text] = []
+	def __init__(self) -> None:
+		self._faces: list[Face] = []
+		self._texts: list[Text] = []
+	#_faces: list[Face] = []
+	#_texts: list[Text] = []
 
 	# FIX All of these properties are bad
 	@property
