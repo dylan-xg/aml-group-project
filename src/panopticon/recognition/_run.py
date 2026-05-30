@@ -99,6 +99,9 @@ def detect_in_frame(frame: _Frame) -> _Frame:
 	drawer: _Drawer = _Drawer()
 
 	for detected_face in faces:
+		if detected_face.empty:
+			print("Empty")
+			continue
 		drawer.faces = _handle_face(dataframe=detected_face, frame=frame)
 
 	_run_enabled_modules(drawer=drawer)
