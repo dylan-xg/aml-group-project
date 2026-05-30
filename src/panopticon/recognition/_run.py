@@ -4,6 +4,12 @@ from typing import Any as _Any, cast as _cast
 
 import pandas as _pd
 from deepface import DeepFace as _DeepFace
+from deepface.modules.exceptions import (
+	DimensionMismatchError as _DimensionMismatchError,
+	EmptyDatasource as _EmptyDatasource,
+	ImgNotFound as _ImgNotFound,
+	PathNotFound as _PathNotFound,
+)
 
 from panopticon.drawer import (
 	Box as _Box,
@@ -59,35 +65,51 @@ def _handle_face(dataframe: _pd.DataFrame, frame: _Frame) -> _Face:
 
 
 def _get_faces(frame: _Frame, /) -> list[_pd.DataFrame] | None:
-	if _SETTINGS.USE_POSTGRES_DB:
-		detected_faces: list[_pd.DataFrame] = _DeepFace.search(
-			img=frame,
-			model_name=_SETTINGS.MODEL_NAME,
-			detector_backend=_SETTINGS.DETECTOR_BACKEND,
-			distance_metric=_SETTINGS.DISTANCE_METRIC,
-			enforce_detection=False,
-			normalization=_SETTINGS.MODEL_NAME,
-			k=_SETTINGS.TOP_K,
-		)
-	else:
-		dfs: list[_pd.DataFrame] | list[list[dict[str, _Any]]] = _DeepFace.find(
-			img_path=frame,
-			db_path=str(object=_SETTINGS.LOCAL_DATABASE_PATH),
-			model_name=_SETTINGS.MODEL_NAME,
-			distance_metric=_SETTINGS.DISTANCE_METRIC,
-			enforce_detection=False,
-			detector_backend=_SETTINGS.DETECTOR_BACKEND,
-			k=_SETTINGS.TOP_K,
-			normalization=_SETTINGS.MODEL_NAME,
-			silent=True,
-		)
+	try:
+		if _SETTINGS.USE_POSTGRES_DB:
+			detected_faces: list[_pd.DataFrame] = _DeepFace.search(
+				img=frame,
+				model_name=_SETTINGS.MODEL_NAME,
+				detector_backend=_SETTINGS.DETECTOR_BACKEND,
+				distance_metric=_SETTINGS.DISTANCE_METRIC,
+				enforce_detection=False,
+				normalization=_SETTINGS.MODEL_NAME,
+				k=_SETTINGS.TOP_K,
+			)
+		else:
+			dfs: list[_pd.DataFrame] | list[list[dict[str, _Any]]] = _DeepFace.find(
+				img_path=frame,
+				db_path=str(object=_SETTINGS.LOCAL_DATABASE_PATH),
+				model_name=_SETTINGS.MODEL_NAME,
+				distance_metric=_SETTINGS.DISTANCE_METRIC,
+				enforce_detection=False,
+				detector_backend=_SETTINGS.DETECTOR_BACKEND,
+				k=_SETTINGS.TOP_K,
+				normalization=_SETTINGS.MODEL_NAME,
+				silent=True,
+			)
 
-		if dfs and isinstance(dfs[0], list):
-			raise Exception("Doing batched for some reason")
+			if dfs and isinstance(dfs[0], list):
+				raise Exception("Doing batched for some reason")
 
-		detected_faces = _cast(list[_pd.DataFrame], dfs)
+			detected_faces = _cast(list[_pd.DataFrame], dfs)
 
-	return detected_faces if len(detected_faces) > 1 else None
+		return detected_faces if len(detected_faces) > 1 else None
+
+	except _EmptyDatasource:
+		# We don't care about this.
+		return None
+	except _DimensionMismatchError as e:
+		print(f"Frame dimensions incorrect: {e}")
+		quit()
+	except _ImgNotFound as e:
+		print(f"Error reading frame: {e}")
+		quit()
+	except _PathNotFound as e:
+		print(f"Error reading path: {e}")
+		quit()
+	except Exception as e:
+		print(f"Unknown exception {e}")
 
 
 def detect_in_frame(frame: _Frame) -> _Frame:
