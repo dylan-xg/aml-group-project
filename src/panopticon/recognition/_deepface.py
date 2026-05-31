@@ -67,8 +67,14 @@ def add_model_to_deepface(model: _CustomClassifierEmbeddingModel, /) -> None:
 
 	_DeepFace.build_model(model_name=model.name)
 
+	if _SETTINGS.USE_POSTGRES_DB:
+		_DeepFace.build_index(_SETTINGS.MODEL_NAME)
+
 
 def register(name: str, frames: list[_Frame]) -> None:
+	if not _SETTINGS.USE_POSTGRES_DB:
+		raise RuntimeError("Register should only be used with the postgres database.")
+
 	for i, f in enumerate(iterable=frames):
 		_DeepFace.register(
 			img=f,
@@ -77,6 +83,8 @@ def register(name: str, frames: list[_Frame]) -> None:
 			detector_backend=_SETTINGS.DETECTOR_BACKEND,
 			normalization=_SETTINGS.MODEL_NAME,
 		)
+
+	_DeepFace.build_index(_SETTINGS.MODEL_NAME)
 
 
 ##def add_example_model_to_deepface(model) -> None:
