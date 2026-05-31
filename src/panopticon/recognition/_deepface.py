@@ -15,6 +15,9 @@ from deepface.modules.verification import (
 	thresholds as _thresholds,
 )
 
+from panopticon.settings import SETTINGS as _SETTINGS
+from panopticon.typing import Frame as _Frame
+
 from ._model import CustomClassifierEmbeddingModel as _CustomClassifierEmbeddingModel
 
 
@@ -63,6 +66,17 @@ def add_model_to_deepface(model: _CustomClassifierEmbeddingModel, /) -> None:
 	_preprocessing.normalize_input = custom_normalize_input
 
 	_DeepFace.build_model(model_name=model.name)
+
+
+def register(name: str, frames: list[_Frame]) -> None:
+	for i, f in enumerate(iterable=frames):
+		_DeepFace.register(
+			img=f,
+			img_name=f"{name}_{i}",
+			model_name=_SETTINGS.MODEL_NAME,
+			detector_backend=_SETTINGS.DETECTOR_BACKEND,
+			normalization=_SETTINGS.MODEL_NAME,
+		)
 
 
 ##def add_example_model_to_deepface(model) -> None:
