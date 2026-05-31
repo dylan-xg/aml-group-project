@@ -78,7 +78,7 @@ class AntiSpoofModule(_BaseModule):
 	def run_inference(self, face_list: list[_Frame], /) -> list[str]:
 		results_tensor: _tf.Tensor = self._call_model(face_list, flip_channels=False)
 		return [
-			f"{self.name}: REAL" if float(pred[0]) >= 0.5 else f"{self.name}: FAKE"
+			f"{self.name}: REAL" if float(pred[0]) >= 0.9 else f"{self.name}: FAKE"
 			for pred in results_tensor.numpy()
 		]
 
