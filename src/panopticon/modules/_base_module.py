@@ -1,17 +1,22 @@
 """An abstract base class for the modules to inherit from."""
 
 from abc import ABC as _ABC, abstractmethod as _abstractmethod
+from collections.abc import Callable as _Callable
 from dataclasses import dataclass as _dataclass, field as _field
+from pathlib import Path as _Path
 from typing import (
-	Callable as _Callable,
 	Self as _Self,
 	dataclass_transform as _dataclass_transform,
 )
 
-import numpy.typing as _npt
+import keras.models as _models
+import tensorflow as _tf
 from keras.src import Functional as _Functional
 
-from panopticon.typing import ModuleStateCallback as _ModuleStateCallback
+from panopticon.typing import (
+	Frame as _Frame,
+	ModuleStateCallback as _ModuleStateCallback,
+)
 
 
 @_dataclass_transform(kw_only_default=True)
@@ -39,6 +44,10 @@ class BaseModule(_ABC):
 	"""A representational holder class for a model."""
 
 	name: str
+	img_length: int
+	img_size: tuple[int, int]
+	"""Don't set directly"""
+	path: _Path | None = None
 	enabled: bool = False
 	# Prevent this from being included in the dataclass initialiser.
 	model: _Functional | None = _field(default=None, init=False)
@@ -47,23 +56,41 @@ class BaseModule(_ABC):
 		self.enabled = not self.enabled
 		callback(self.enabled)
 
-	@_abstractmethod
 	def load_model(self) -> _Self:
 		"""A method to load the model weights for this module."""
-		raise NotImplementedError
+		self.model = _models.load_model(filepath=self.path, compile=False)
+		return self
+
+	def preprocess_faces(self, faces: list[_Frame]) -> _tf.Tensor:
+		processed_faces: list[_tf.Tensor] = []
+
+		# Resize individually.
+		for face in faces:
+			tensor: _tf.Tensor = _tf.convert_to_tensor(face)
+
+			if len(tensor.shape) == 2:
+				tensor = _tf.expand_dims(tensor, axis=-1)
+
+			tensor = _tf.image.resize(tensor, self.img_size)
+			processed_faces.append(tensor)
+
+		# Batch the images as (Batch, Height, Width, Channels).
+		faces_tensor: _tf.Tensor = _tf.stack(processed_faces)
+
+		# This is effectively the same as faces_tensor[..., ::-1].
+		faces_tensor = _tf.reverse(faces_tensor, axis=[-1])
+		faces_tensor = _tf.cast(faces_tensor, _tf.float32) / 255.0
+
+		return faces_tensor
 
 	@_abstractmethod
-	def run_inference(self, faces: _npt.NDArray) -> list[str]:
+	def run_inference(self, faces: list[_Frame]) -> list[str]:
 		"""A method to run model inference on the passed faces.
 
 		Parameters
 		----------
-		faces : images containing faces
-			This is a 4D numpy array.
-
-			The dimensions are as follows: (n, height, width, 3)
-
-			Where n is the number of faces in the array.
+		faces : list of images
+			These are the different faces detected this frame that will be run on.
 
 		Returns
 		-------
