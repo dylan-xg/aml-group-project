@@ -15,13 +15,14 @@ from deepface.modules.verification import (
 	thresholds as _thresholds,
 )
 
+from ._model import BaseDeepFaceEmbeddingModel as _BaseDeepFaceEmbeddingModel
 from panopticon.settings import SETTINGS as _SETTINGS
 from panopticon.typing import Frame as _Frame
 
 from ._model import CustomClassifierEmbeddingModel as _CustomClassifierEmbeddingModel
 
 
-def add_model_to_deepface(model: _CustomClassifierEmbeddingModel, /) -> None:
+def add_model_to_deepface(model: _BaseDeepFaceEmbeddingModel, /) -> None:
 
 	class NewModelClient(_FacialRecognition):
 		def __init__(self) -> None:

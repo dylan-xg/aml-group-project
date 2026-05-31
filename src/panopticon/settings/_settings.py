@@ -91,10 +91,10 @@ class _Settings(_BaseSettings):
 	TOP_K: _Annotated[int, _Field(frozen=True, gt=0)] = 1
 	"""How many matches to return for each face."""
 
-	MODEL_NAME: _Annotated[str, _Field(frozen=True)] = "CustomClassifierEmbeddingModel"
+	MODEL_NAME: _Annotated[str, _Field(frozen=True)] = "MetricLearningEmbeddingModel"
 	"""The name used to identify our model in DeepFace."""
 
-	UNKNOWN_THRESHOLD: _Annotated[float, _Field(frozen=True, gt=0, lt=1)] = 0.4
+	UNKNOWN_THRESHOLD: _Annotated[float, _Field(frozen=True, gt=0, lt=1)] = 0.8
 	"""The value used to determine if a face is not found in the database."""
 
 	NUM_REGISTRATION_IMAGES: _Annotated[int, _Field(frozen=True, gt=0)] = 6

@@ -3,6 +3,7 @@
 from .modules import LOADED_MODULES
 from .recognition import (
 	CustomClassifierEmbeddingModel,
+    MetricLearningEmbeddingModel,
 	FaceRecognitionSystem,
 	add_model_to_deepface,
 )
@@ -11,9 +12,9 @@ from .ui import UserInterface
 from .video_feed import VideoFeed
 
 
-model_path = SETTINGS.MODEL_WEIGHTS_LOCATION / "final_face_embedding_model.keras"
+model_path = SETTINGS.MODEL_WEIGHTS_LOCATION / "metric_learning_current_after_extra_training.keras"
 add_model_to_deepface(
-	CustomClassifierEmbeddingModel(name=SETTINGS.MODEL_NAME, model_path=model_path)
+	MetricLearningEmbeddingModel(name=SETTINGS.MODEL_NAME, model_path=model_path)
 )
 
 video_feed = VideoFeed(

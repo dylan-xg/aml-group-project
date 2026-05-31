@@ -8,6 +8,8 @@ from ._deepface import add_model_to_deepface as add_model_to_deepface
 from ._model import (
 	CustomClassifierEmbeddingModel as CustomClassifierEmbeddingModel,
 	ExampleModel as ExampleModel,
+    MetricLearningEmbeddingModel,
+    BaseDeepFaceEmbeddingModel,
 )
 from ._registration import NewFace as NewFace
 from ._run import FaceRecognitionSystem as FaceRecognitionSystem
