@@ -65,10 +65,12 @@ class _Settings(_BaseSettings):
 	)
 	"""The path to the folder containing the model weights."""
 
-	USE_POSTGRES_DB: _Annotated[bool, _Field(frozen=True)] = True #changed
+	USE_POSTGRES_DB: _Annotated[bool, _Field(frozen=True)] = False
 	"""Whether to use the stateless database search."""
 
-	DEEPFACE_POSTGRES_URI: _Annotated[str | None, _Field(frozen=True)] = 'postgresql://postgres:PASSWORD@localhost/deepface'  #changed from None, + PASSWORD!!!
+	DEEPFACE_POSTGRES_URI: _Annotated[str | None, _Field(frozen=True)] = (
+		"postgresql://postgres:PASSWORD@localhost/deepface"
+	)
 	"""If :func:`USE_POSTGRES_DB` is True, what is the URI.
 
 	This value isn't used directly, but it is needed for Deepface to work.
@@ -77,9 +79,7 @@ class _Settings(_BaseSettings):
 		`DEEPFACE_POSTGRES_URI='postgresql://postgres:@localhost/deepface'`
 	"""
 
-	LOCAL_DATABASE_PATH: _Annotated[_Path, _Field(frozen=True)] = _Path(
-		"data/faces_db"
-	)
+	LOCAL_DATABASE_PATH: _Annotated[_Path, _Field(frozen=True)] = _Path("data/faces_db")
 	"""If :func:`USE_POSTGRES_DB` is False, what folder is the database."""
 
 	DETECTOR_BACKEND: _Annotated[str, _Field(frozen=True)] = "ssd"
