@@ -41,7 +41,7 @@ class EmptyModule(_BaseModule):
 
 @_kw_dataclass
 class EmotionModule(_BaseModule):
-	name: str = "EmotionModule"
+	name: str = "Emotion"
 	path: _Path = _SETTINGS.MODEL_WEIGHTS_LOCATION / "expression9_orig_longrun.keras"
 	img_length: int = 128
 	img_size: tuple[int, int] = (img_length, img_length)
@@ -62,14 +62,14 @@ class EmotionModule(_BaseModule):
 	def run_inference(self, face_list: list[_Frame], /) -> list[str]:
 		results_tensor: _tf.Tensor = self._call_model(face_list)
 		return [
-			self.EMOTION_LABELS[prediction.argmax()]
+			f"{self.name}: {self.EMOTION_LABELS[prediction.argmax()]}"
 			for prediction in results_tensor.numpy()
 		]
 
 
 @_kw_dataclass
 class AntiSpoofModule(_BaseModule):
-	name: str = "AntiSpoofModule"
+	name: str = "AntiSpoof"
 	path: _Path = _SETTINGS.MODEL_WEIGHTS_LOCATION / "anti_spoof_model.keras"
 	img_length: int = 64
 	img_size: tuple[int, int] = (img_length, img_length)
