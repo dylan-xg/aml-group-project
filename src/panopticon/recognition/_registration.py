@@ -13,7 +13,7 @@ class NewFace:
 
 	def __init__(self, name: str, /) -> None:
 		self.name: str = name
-		self.images: list[_Frame] = []
+		self.count: int = 0
 
 	def consider_new_face(self, frame: _Frame, distance: float) -> bool:
 		"""Evaluate the unknown face and store it if it meets requirements.
@@ -23,25 +23,32 @@ class NewFace:
 		bool
 			True if the required number of images has been collected, False otherwise.
 		"""
+		# Handle the first image.
+		if self.count == 0:
+			self.count += 1
+			self.register_to_database(frame)
+			return False
+
 		# Unrecognised due to an empty database will return infinity;
 		# bypass bounds check to guarantee saving.
+		print(distance)
 		if distance == float("inf") or (
 			_SETTINGS.REGISTRATION_THRESHOLD_MIN
 			<= distance
 			<= _SETTINGS.REGISTRATION_THRESHOLD_MAX
 		):
-			self.images.append(frame)
+			self.count += 1
+			self.register_to_database(frame)
 
-		return len(self.images) >= _SETTINGS.NUM_REGISTRATION_IMAGES
+		return self.count >= _SETTINGS.NUM_REGISTRATION_IMAGES
 
-	def finalise_registration(self) -> None:
+	def register_to_database(self, frame: _Frame, /) -> None:
 		"""Save the collected images to the database or local directory."""
+
 		if _SETTINGS.USE_POSTGRES_DB is True:
-			_register(name=self.name, frames=self.images)
+			_register(name=self.name, frames=frame)
 		else:
 			save_dir: _Path = _Path(_SETTINGS.LOCAL_DATABASE_PATH) / self.name
 			save_dir.mkdir(parents=True, exist_ok=True)
-
-			for i, frame in enumerate(self.images):
-				file_path: _Path = save_dir / f"{self.name}_{i}.png"
-				_cv2.imwrite(filename=str(file_path), img=frame)
+			file_path: _Path = save_dir / f"{self.name}_{self.count}.png"
+			_cv2.imwrite(filename=str(file_path), img=frame)

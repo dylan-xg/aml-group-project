@@ -80,9 +80,12 @@ def add_model_to_deepface(model: _BaseDeepFaceEmbeddingModel, /) -> None:
 			pass
 
 
-def register(name: str, frames: list[_Frame]) -> None:
+def register(name: str, frames: _Frame | list[_Frame]) -> None:
 	if not _SETTINGS.USE_POSTGRES_DB:
 		raise RuntimeError("Register should only be used with the postgres database.")
+
+	if not isinstance(frames, list):
+		frames = [frames]
 
 	for i, f in enumerate(iterable=frames):
 		_DeepFace.register(

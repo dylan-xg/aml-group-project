@@ -182,7 +182,7 @@ class FaceRecognitionSystem:
 	@classmethod
 	def _handle_registration(
 		cls,
-		unknown_faces: list[FaceDistancePair],
+		faces: CategorisedFaces,
 		drawer: _Drawer,
 		frame_shape: tuple[int, ...],
 	) -> None:
@@ -190,17 +190,13 @@ class FaceRecognitionSystem:
 		if cls._registration_face is None:
 			return
 
-		if len(unknown_faces) == 0:
-			drawer.texts = _Text(
-				label="Registration: No unknown face detected",
-				scale=1,
-				position=(5, frame_shape[0] - 10),
-			)
-			return
+		known_faces: list[FaceDistancePair]
+		unknown_faces: list[FaceDistancePair]
+		known_faces, unknown_faces = faces
 
-		if len(unknown_faces) > 1:
+		if len(known_faces) > 1 and len(unknown_faces) > 1:
 			drawer.texts = _Text(
-				label="Registration: Multiple unknown faces detected",
+				label="Registration: More than once face detected",
 				scale=1,
 				position=(5, frame_shape[0] - 10),
 			)
@@ -208,19 +204,18 @@ class FaceRecognitionSystem:
 
 		face: _Face
 		distance: float
-		face, distance = unknown_faces[0]
+		face, distance = (unknown_faces + known_faces)[0]
 		is_complete: bool = cls._registration_face.consider_new_face(
 			frame=face.image, distance=distance
 		)
 
 		if is_complete:
-			cls._registration_face.finalise_registration()
 			msg: str = f"Registration Complete: {cls._registration_face.name}"
 			cls._registration_face = None
 		else:
 			msg = (
 				f"Registering {cls._registration_face.name} "
-				f"({len(cls._registration_face.images)}/{_SETTINGS.NUM_REGISTRATION_IMAGES})"
+				f"({cls._registration_face.count}/{_SETTINGS.NUM_REGISTRATION_IMAGES})"
 			)
 
 		drawer.texts = _Text(label=msg, scale=1, position=(5, frame_shape[0] - 10))
@@ -228,9 +223,10 @@ class FaceRecognitionSystem:
 	@classmethod
 	def _process_faces(cls, frame: _Frame, drawer: _Drawer) -> None:
 		"""Extract faces, call modules, do registration stuff."""
+		faces: CategorisedFaces = cls._extract_faces(frame=frame)
 		known_faces: list[FaceDistancePair]
 		unknown_faces: list[FaceDistancePair]
-		known_faces, unknown_faces = cls._extract_faces(frame=frame)
+		known_faces, unknown_faces = faces
 
 		if len(known_faces) == 0 and len(unknown_faces) == 0:
 			if cls._registration_face is not None:
@@ -238,9 +234,7 @@ class FaceRecognitionSystem:
 			else:
 				msg = "No faces detected"
 
-			drawer.texts = _Text(
-				label=msg, scale=1, position=(5, frame.shape[0] - 10)
-			)
+			drawer.texts = _Text(label=msg, scale=1, position=(5, frame.shape[0] - 10))
 			return
 
 		for face, _ in known_faces + unknown_faces:
@@ -250,7 +244,7 @@ class FaceRecognitionSystem:
 
 		if cls._registration_face is not None:
 			cls._handle_registration(
-				unknown_faces=unknown_faces, drawer=drawer, frame_shape=frame.shape
+				faces=faces, drawer=drawer, frame_shape=frame.shape
 			)
 
 	@classmethod
