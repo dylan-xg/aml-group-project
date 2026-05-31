@@ -4,7 +4,7 @@ from dataclasses import dataclass as _dataclass
 
 import cv2 as _cv
 
-from src.panopticon.typing import (
+from panopticon.typing import (
 	Colour as _Colour,
 	Frame as _Frame,
 	Position as _Position,
@@ -85,7 +85,7 @@ class Face:
 		self,
 		image: _Frame,
 		box: Box,
-		texts: list[Text] = [],
+		texts: list[Text] | None = None,
 		padding_box_y: int = PADDING_DEFAULT_VERTICAL,
 		padding_frame_x: int = PADDING_DEFAULT_HORIZONTAL,
 		padding_frame_y: int = PADDING_DEFAULT_VERTICAL,
@@ -93,9 +93,9 @@ class Face:
 	) -> None:
 		self._image = image
 		self._box: Box = box
-		self._texts: list[Text] = texts
+		# Create a fresh list from the texts.
+		self._texts: list[Text] = list(texts) if texts is not None else []
 
-		##self.padding_box_x: int = PADDING_DEFAULT_HORIZONTAL # Unused
 		self.padding_box_y: int = padding_box_y
 		self.padding_frame_x: int = padding_frame_x
 		self.padding_frame_y: int = padding_frame_y
@@ -114,13 +114,10 @@ class Face:
 		return self._texts
 
 	def get_name(self) -> str:
-		return self._texts[0].label
+		return self._texts[0].label if len(self._texts) > 0 else "Unknown"
 
 	def draw_onto_frame(self, frame: _Frame, /) -> _Frame:
 		frame = self._box.draw_onto_frame(frame)
-
-		##_cv.getFontScaleFromHeight
-		##_cv.getTextSize
 
 		# Calculate where to draw the text.
 		# `getTextSize` returns ((width, height), baseline)
@@ -180,22 +177,23 @@ class Face:
 
 
 class Drawer:
-	# Could use sets with tuples
-	_faces: list[Face] = []
-	_texts: list[Text] = []
+	"""Handles drawing visual markers on a per-frame basis."""
 
-	# FIX All of these properties are bad
+	def __init__(self) -> None:
+		self._faces: list[Face] = []
+		self._texts: list[Text] = []
+
 	@property
 	def faces(self) -> list[Face]:
 		return self._faces
 
 	@faces.setter
 	def faces(self, face: Face | list[Face], /) -> None:
-		if isinstance(face, Face):
-			face = [face]
-		if face in self._faces:
-			raise ValueError("Face already exists")
-		self._faces += face
+		new_faces: list[Face] = [face] if isinstance(face, Face) else face
+		for f in new_faces:
+			if f in self._faces:
+				raise ValueError("Face already exists")
+			self._faces.append(f)
 
 	@property
 	def texts(self) -> list[Text]:
@@ -203,11 +201,11 @@ class Drawer:
 
 	@texts.setter
 	def texts(self, text: Text | list[Text], /) -> None:
-		if isinstance(text, Text):
-			text = [text]
-		if text in self._texts:
-			raise ValueError("Text already exists")
-		self._texts += text
+		new_texts: list[Text] = [text] if isinstance(text, Text) else text
+		for t in new_texts:
+			if t in self._texts:
+				raise ValueError("Text already exists")
+			self._texts.append(t)
 
 	def draw_onto_frame(self, frame: _Frame, /) -> _Frame:
 		for face in self._faces:
