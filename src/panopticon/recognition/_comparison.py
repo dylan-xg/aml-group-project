@@ -20,11 +20,11 @@ def _config_gpu():
 	)
 	print(f"{len(GPUS)} GPU(s): {GPUS}")
 
-	try:
-		_tf_config.experimental.set_memory_growth(GPUS[0], True)
-	except:
-		# Invalid device or cannot modify virtual devices once initialized.
-		pass
+	#try:
+	#	_tf_config.experimental.set_memory_growth(GPUS[0], True)
+	#except:
+	#	# Invalid device or cannot modify virtual devices once initialized.
+	#	pass
 
 
 _config_gpu()
