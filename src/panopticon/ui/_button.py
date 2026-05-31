@@ -12,7 +12,8 @@ from ..typing import (
 class Button:
 	"""A wrapper for the tkinter button to provide extra functionality and control.
 
-	Should only be created using the class factory methods :func:`simple_button` and :func:`complex_button`.
+	Should only be created using the class factory methods :func:`simple_button`
+	and :func:`complex_button`.
 	"""
 
 	@property
@@ -64,7 +65,8 @@ class Button:
 		order: int,
 		command: ButtonCommandWithStateCallback,
 	) -> _Self:
-		"""Class factory method to build a button with a command that supports :func:`ModelStateCallback`."""
+		"""Class factory method to build a button with a command that
+		supports :func:`ModelStateCallback`."""
 		inst: _Self = cls(
 			label,
 			order,
