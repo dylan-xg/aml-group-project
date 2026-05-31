@@ -6,14 +6,16 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "deepface>=0.0.100",
-    "faiss-gpu-cu12>=1.14.1.post1",
+    "faiss-cpu>=1.8.0; sys_platform == 'darwin'",
+    "faiss-gpu-cu12==1.14.1.post1; sys_platform == 'linux'",
     "numpy>=2.4.6",
     "opencv-python>=4.13.0.92",
     "pandas>=3.0.3",
     "psycopg[binary]>=3.3.4",
     "pydantic-settings>=2.14.1",
     "scipy>=1.17.1",
-    "tensorflow[and-cuda]>=2.21.0",
+    "tensorflow>=2.16.0; sys_platform == 'darwin'",
+    "tensorflow[and-cuda]>=2.21.0; sys_platform == 'linux'",
     "tf-keras>=2.21.0",
 ]
 
