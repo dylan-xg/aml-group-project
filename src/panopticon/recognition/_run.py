@@ -244,7 +244,7 @@ class FaceRecognitionSystem:
 		for face, _ in known_faces + unknown_faces:
 			drawer.faces = face
 
-		_run_enabled_modules(drawer=drawer)
+		_run_enabled_modules(drawer)
 
 		if cls._registration_face is not None:
 			cls._handle_registration(

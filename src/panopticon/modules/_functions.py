@@ -1,6 +1,7 @@
 """A collection of functions to loading and using modules."""
 
 # IDEA Could analysis be run asynchronous from the framerate?
+# IDEA Dispatch model inference calls in parallel.
 
 from panopticon.drawer import (
 	Drawer as _Drawer,
@@ -28,22 +29,32 @@ def _load_all_modules() -> tuple[_BaseModule, ...]:
 LOADED_MODULES: tuple[_BaseModule, ...] = _load_all_modules()
 
 
-def run_enabled_modules(drawer: _Drawer, debug: bool = False) -> None:
+def run_enabled_modules(drawer: _Drawer, /, *, debug: bool = False) -> None:
+	if debug:
+		print("Running modules.")
+
 	if len(LOADED_MODULES) == 0:
+		if debug:
+			print("No modules loaded.")
 		return
 
 	images: list[_Frame] = [face.image for face in drawer.faces]
 	if len(images) == 0:
+		if debug:
+			print("No images found.")
 		return
 
-	# Could maybe dispatch model inference calls in parallel.
 	for model in LOADED_MODULES:
+		print(f"Module: {model.name}", end="")
+
 		# Skip disabled models.
-		if not model.enabled:
+		if model.enabled is not True:
+			if debug:
+				print(", skipping")
 			continue
 
 		if debug:
-			print(f"Running module: {model.name}")
+			print(", running")
 
 		results: list[str] = model.run_inference(images)
 

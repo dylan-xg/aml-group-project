@@ -54,6 +54,7 @@ class BaseModule(_ABC):
 
 	def toggle_enabled(self, callback: _ModuleStateCallback, /) -> None:
 		self.enabled = not self.enabled
+		print(f"{self.name} set to {"True" if self.enabled else "False"}")
 		callback(self.enabled)
 
 	def load_model(self) -> _Self:
