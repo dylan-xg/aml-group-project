@@ -112,6 +112,8 @@ class _Settings(_BaseSettings):
 	"""When registering a new face, what is the maximum acceptable distance
 	to use when adding a new image."""
 
+	TEXT_SCALE: _Annotated[float, _Field(frozen=True, gt=0)] = 1
+
 	def input_source(self) -> int | _Path:
 		"""Util function to parse and validate the input source.
 

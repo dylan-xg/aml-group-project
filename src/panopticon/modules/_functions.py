@@ -9,6 +9,7 @@ from panopticon.drawer import (
 	Drawer as _Drawer,
 	Text as _Text,
 )
+from panopticon.settings import SETTINGS as _SETTINGS
 from panopticon.typing import Frame as _Frame
 
 from ._base_module import BaseModule as _BaseModule
@@ -47,7 +48,8 @@ def run_enabled_modules(drawer: _Drawer, /) -> None:
 		results: list[str] = module.run_inference(images)
 
 		for result, face in zip(results, drawer.faces):
-			face.texts.append(_Text(label=result, scale=0.4))
+			scale: float = 0.4 * _SETTINGS.TEXT_SCALE
+			face.texts.append(_Text(label=result, scale=scale))
 
 
 assert __package__ == "panopticon.modules", (
