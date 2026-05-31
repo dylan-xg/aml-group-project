@@ -69,7 +69,11 @@ def add_model_to_deepface(model: _CustomClassifierEmbeddingModel, /) -> None:
 
 	if _SETTINGS.USE_POSTGRES_DB:
 		try:
-			_DeepFace.build_index(_SETTINGS.MODEL_NAME)
+			_DeepFace.build_index(
+				model_name=_SETTINGS.MODEL_NAME,
+				detector_backend=_SETTINGS.DETECTOR_BACKEND,
+				align=True,
+			)
 		except ValueError:
 			# No images in the database yet.
 			pass
@@ -88,7 +92,11 @@ def register(name: str, frames: list[_Frame]) -> None:
 			normalization=_SETTINGS.MODEL_NAME,
 		)
 
-	_DeepFace.build_index(_SETTINGS.MODEL_NAME)
+	_DeepFace.build_index(
+		model_name=_SETTINGS.MODEL_NAME,
+		detector_backend=_SETTINGS.DETECTOR_BACKEND,
+		align=True,
+	)
 
 
 ##def add_example_model_to_deepface(model) -> None:
