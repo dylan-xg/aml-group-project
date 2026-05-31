@@ -1,8 +1,8 @@
 """The main window."""
 
 import tkinter as _tk
+from collections.abc import Iterable as _Iterable
 from tkinter import ttk as _ttk
-from typing import Iterable as _Iterable
 
 from panopticon.modules import BaseModule as _BaseModule
 from panopticon.recognition import FaceRecognitionSystem as _FaceRecognitionSystem
@@ -28,12 +28,12 @@ class UserInterface:
 		self.window = _tk.Tk()
 
 		if title is not None:
-			self.window.title(string=title)
+			self.window.title(title)
 
-		self.window.geometry(newGeometry=f"{width}x{height}")
+		self.window.geometry(f"{width}x{height}")
 
 		# MAIN FRAME
-		self.mainframe = _ttk.Frame(master=self.window)
+		self.mainframe = _ttk.Frame(self.window)
 		self.mainframe.pack(expand=True, fill=_tk.BOTH)
 
 		self.mainframe.rowconfigure(index=0, weight=1)
@@ -41,9 +41,9 @@ class UserInterface:
 		self.mainframe.columnconfigure(index=1, weight=0)
 
 		# VIDEO
-		self.video_container = _ttk.Frame(master=self.mainframe)
+		self.video_container = _ttk.Frame(self.mainframe)
 		self.video_container.grid(row=0, column=0, sticky="news")
-		self.video_container.pack_propagate(flag=False)
+		self.video_container.pack_propagate(False)
 
 		# INPUT PANEL
 		self.input_panel = _ttk.Frame(master=self.mainframe, padding=10)
@@ -104,7 +104,7 @@ class UserInterface:
 
 	def add_modules(self, models: _Iterable[_BaseModule], order: int = 11) -> None:
 
-		for i, module in enumerate(iterable=models):
+		for i, module in enumerate(models):
 			_Button.complex_button(
 				input_panel=self.input_panel,
 				label=module.name,
@@ -116,9 +116,9 @@ class UserInterface:
 
 	def open_registration_popup(self) -> None:
 
-		popup = _tk.Toplevel(master=self.window)
-		popup.title(string="Register New Face")
-		popup.geometry(newGeometry="350x220")
+		popup = _tk.Toplevel(self.window)
+		popup.title("Register New Face")
+		popup.geometry("350x220")
 
 		title = _tk.Label(
 			master=popup, text="Face Registration", font=("Arial", 16, "bold")
