@@ -68,7 +68,11 @@ def add_model_to_deepface(model: _CustomClassifierEmbeddingModel, /) -> None:
 	_DeepFace.build_model(model_name=model.name)
 
 	if _SETTINGS.USE_POSTGRES_DB:
-		_DeepFace.build_index(_SETTINGS.MODEL_NAME)
+		try:
+			_DeepFace.build_index(_SETTINGS.MODEL_NAME)
+		except ValueError:
+			# No images in the database yet.
+			pass
 
 
 def register(name: str, frames: list[_Frame]) -> None:
