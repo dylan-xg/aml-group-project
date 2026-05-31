@@ -102,7 +102,9 @@ class UserInterface:
 
 	# MODULE BUTTONS
 
-	def add_modules(self, models: _Iterable[_BaseModule], order: int = 11) -> None:
+	def add_modules(
+		self, models: _Iterable[_BaseModule], /, *, order: int = 11
+	) -> None:
 
 		for i, module in enumerate(models):
 			_Button.complex_button(
@@ -110,6 +112,7 @@ class UserInterface:
 				label=module.name,
 				order=order + i,
 				command=module.toggle_enabled,
+				initial_state=module.enabled,
 			)
 
 	# REGISTRATION POPUP

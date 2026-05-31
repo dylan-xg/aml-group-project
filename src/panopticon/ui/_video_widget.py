@@ -40,7 +40,8 @@ class VideoWidget:
 	def on_resize(self, event: _tk.Event) -> None:
 		"""Update target dimensions based on the new size of the parent frame.
 
-		Normally, you'd want to keep this value above zero, but we already do that later so it's fine to leave it raw here.
+		Normally, you'd want to keep this value above zero, but we already do that
+		later so it's fine to leave it raw here.
 		"""
 		self.target_width = event.width
 		self.target_height = event.height

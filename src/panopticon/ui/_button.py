@@ -64,6 +64,7 @@ class Button:
 		label: str,
 		order: int,
 		command: ButtonCommandWithStateCallback,
+		initial_state: bool,
 	) -> _Self:
 		"""Class factory method to build a button with a command that
 		supports :func:`ModelStateCallback`."""
@@ -73,7 +74,7 @@ class Button:
 			_ttk.Button(
 				master=input_panel,
 				command=lambda: command(inst.update_label),
-				text=cls.state_label_builder(label=label, state=False),
+				text=cls.state_label_builder(label=label, state=initial_state),
 				width=SETTINGS.INPUT_BUTTON_WIDTH,
 			),
 		)
