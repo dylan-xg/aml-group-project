@@ -76,7 +76,7 @@ class AntiSpoofModule(_BaseModule):
 
 	@_override
 	def run_inference(self, face_list: list[_Frame], /) -> list[str]:
-		results_tensor: _tf.Tensor = self._call_model(face_list)
+		results_tensor: _tf.Tensor = self._call_model(face_list, flip_channels=False)
 		return [
 			f"{self.name}: REAL" if float(pred[0]) >= 0.5 else f"{self.name}: FAKE"
 			for pred in results_tensor.numpy()
@@ -85,16 +85,18 @@ class AntiSpoofModule(_BaseModule):
 
 @_kw_dataclass
 class GlassesDetectorModule(_BaseModule):
-	name: str = "Glasses detector"
+	name: str = "Glasses"
 	path: _Path = _SETTINGS.MODEL_WEIGHTS_LOCATION / "glasses_detection.keras"
 	img_length: int = 64
 	img_size: tuple[int, int] = (img_length, img_length)
 
 	@_override
 	def run_inference(self, face_list: list[_Frame], /) -> list[str]:
-		results_tensor: _tf.Tensor = self._call_model(face_list)
-		results: _npt.NDArray = results_tensor.numpy().flatten()
+		results_tensor: _tf.Tensor = self._call_model(
+			face_list, normalise=False, convert_to_uint8=True
+		)
+		results: _npt.NDArray = results_tensor.numpy().flatten() > 0
 		return [
-			f"{self.name}: glasses" if result else f"{self.name}: no glasses"
-			for result in results >= 0
+			f"{self.name}: yes" if result else f"{self.name}: no"
+			for result in results.tolist()
 		]

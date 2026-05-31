@@ -61,7 +61,14 @@ class BaseModule(_ABC):
 		self.model = _models.load_model(filepath=self.path, compile=False)
 		return self
 
-	def preprocess_faces(self, face_list: list[_Frame], /) -> _tf.Tensor:
+	def preprocess_faces(
+		self,
+		face_list: list[_Frame],
+		/,
+		flip_channels=True,
+		normalise=True,
+		convert_to_uint8=False,
+	) -> _tf.Tensor:
 		processed_faces: list[_tf.Tensor] = []
 
 		# Resize individually.
@@ -77,13 +84,19 @@ class BaseModule(_ABC):
 		# Batch the images as (Batch, Height, Width, Channels).
 		faces_tensor: _tf.Tensor = _tf.stack(processed_faces)
 
-		# This is effectively the same as faces_tensor[..., ::-1].
-		faces_tensor = _tf.reverse(faces_tensor, axis=[-1])
-		faces_tensor = _tf.cast(faces_tensor, _tf.float32) / 255.0
+		if flip_channels:
+			# This is effectively the same as faces_tensor[..., ::-1].
+			faces_tensor = _tf.reverse(faces_tensor, axis=[-1])
+
+		if normalise:
+			faces_tensor = _tf.cast(faces_tensor, _tf.float32) / 255.0
+
+		if convert_to_uint8:
+			faces_tensor = _tf.cast(faces_tensor, _tf.uint8)
 
 		return faces_tensor
 
-	def _call_model(self, face_list: list[_Frame], /) -> _tf.Tensor:
+	def _call_model(self, face_list: list[_Frame], /, **kwargs) -> _tf.Tensor:
 		"""Helper function for :func:`run_inference`."""
 		if self.model is None:
 			raise RuntimeError("Model not loaded.")
@@ -91,7 +104,7 @@ class BaseModule(_ABC):
 		if len(face_list) == 0:
 			raise ValueError("Empty list passed.")
 
-		tensor: _tf.Tensor = self.preprocess_faces(face_list)
+		tensor: _tf.Tensor = self.preprocess_faces(face_list, **kwargs)
 		return self.model(tensor, training=False)
 
 	@_abstractmethod
