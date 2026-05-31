@@ -123,7 +123,7 @@ class FaceRecognitionSystem:
 					else:
 						identity_label = str(best_match["identity"])
 
-		identity: _Text = _Text(label=identity_label)
+		identity: _Text = _Text(label=identity_label, scale=0.5)
 		face: _Face = _Face(image=face_crop, box=box, texts=[identity])
 
 		return (face, distance)
@@ -193,7 +193,7 @@ class FaceRecognitionSystem:
 		if len(unknown_faces) == 0:
 			drawer.texts = _Text(
 				label="Registration: No unknown face detected",
-				scale=2,
+				scale=1,
 				position=(5, frame_shape[0] - 10),
 			)
 			return
@@ -201,7 +201,7 @@ class FaceRecognitionSystem:
 		if len(unknown_faces) > 1:
 			drawer.texts = _Text(
 				label="Registration: Multiple unknown faces detected",
-				scale=2,
+				scale=1,
 				position=(5, frame_shape[0] - 10),
 			)
 			return
@@ -223,7 +223,7 @@ class FaceRecognitionSystem:
 				f"({len(cls._registration_face.images)}/{_SETTINGS.NUM_REGISTRATION_IMAGES})"
 			)
 
-		drawer.texts = _Text(label=msg, scale=2, position=(5, frame_shape[0] - 10))
+		drawer.texts = _Text(label=msg, scale=1, position=(5, frame_shape[0] - 10))
 
 	@classmethod
 	def _process_faces(cls, frame: _Frame, drawer: _Drawer) -> None:
@@ -238,13 +238,15 @@ class FaceRecognitionSystem:
 			else:
 				msg = "No faces detected"
 
-			drawer.texts = _Text(label=msg, scale=2, position=(5, frame.shape[0] - 10))
+			drawer.texts = _Text(
+				label=msg, scale=1, position=(5, frame.shape[0] - 10)
+			)
 			return
 
 		for face, _ in known_faces + unknown_faces:
 			drawer.faces = face
 
-		_run_enabled_modules(drawer=drawer)
+		_run_enabled_modules(drawer)
 
 		if cls._registration_face is not None:
 			cls._handle_registration(

@@ -40,7 +40,7 @@ class Text:
 	label: str
 	scale: float = 1
 	colour: _Colour = COLOUR_DEFAULT_TEXT
-	thickness: int = 2
+	thickness: int = 1
 	position: _Position = (0, 0)
 	"""Text position (left, bottom).
 

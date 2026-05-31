@@ -1,6 +1,9 @@
 """A collection of functions to loading and using modules."""
 
 # IDEA Could analysis be run asynchronous from the framerate?
+# IDEA Dispatch model inference calls in parallel.
+
+from typing import Final as _Final
 
 from panopticon.drawer import (
 	Drawer as _Drawer,
@@ -25,10 +28,10 @@ def _load_all_modules() -> tuple[_BaseModule, ...]:
 	return tuple(models)
 
 
-LOADED_MODULES: tuple[_BaseModule, ...] = _load_all_modules()
+LOADED_MODULES: _Final[tuple[_BaseModule, ...]] = _load_all_modules()
 
 
-def run_enabled_modules(drawer: _Drawer, debug: bool = False) -> None:
+def run_enabled_modules(drawer: _Drawer, /) -> None:
 	if len(LOADED_MODULES) == 0:
 		return
 
@@ -36,16 +39,18 @@ def run_enabled_modules(drawer: _Drawer, debug: bool = False) -> None:
 	if len(images) == 0:
 		return
 
-	# Could maybe dispatch model inference calls in parallel.
-	for model in LOADED_MODULES:
+	for module in LOADED_MODULES:
 		# Skip disabled models.
-		if not model.enabled:
+		if module.enabled is not True:
 			continue
 
-		if debug:
-			print(f"Running module: {model.name}")
-
-		results: list[str] = model.run_inference(images)
+		results: list[str] = module.run_inference(images)
 
 		for result, face in zip(results, drawer.faces):
-			face.texts.append(_Text(result))
+			face.texts.append(_Text(label=result, scale=0.4))
+
+
+assert __package__ == "panopticon.modules", (
+	f"panopticon.modules imported under wrong package name: {__package__}. "
+	"Run with `un run python -m panopticon` or fix debugger launch config."
+)

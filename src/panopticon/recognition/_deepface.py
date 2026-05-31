@@ -16,6 +16,10 @@ from deepface.modules.verification import (
 )
 
 from ._model import BaseDeepFaceEmbeddingModel as _BaseDeepFaceEmbeddingModel
+from panopticon.settings import SETTINGS as _SETTINGS
+from panopticon.typing import Frame as _Frame
+
+from ._model import CustomClassifierEmbeddingModel as _CustomClassifierEmbeddingModel
 
 
 def add_model_to_deepface(model: _BaseDeepFaceEmbeddingModel, /) -> None:
@@ -63,6 +67,37 @@ def add_model_to_deepface(model: _BaseDeepFaceEmbeddingModel, /) -> None:
 	_preprocessing.normalize_input = custom_normalize_input
 
 	_DeepFace.build_model(model_name=model.name)
+
+	if _SETTINGS.USE_POSTGRES_DB:
+		try:
+			_DeepFace.build_index(
+				model_name=_SETTINGS.MODEL_NAME,
+				detector_backend=_SETTINGS.DETECTOR_BACKEND,
+				align=True,
+			)
+		except ValueError:
+			# No images in the database yet.
+			pass
+
+
+def register(name: str, frames: list[_Frame]) -> None:
+	if not _SETTINGS.USE_POSTGRES_DB:
+		raise RuntimeError("Register should only be used with the postgres database.")
+
+	for i, f in enumerate(iterable=frames):
+		_DeepFace.register(
+			img=f,
+			img_name=f"{name}_{i}",
+			model_name=_SETTINGS.MODEL_NAME,
+			detector_backend=_SETTINGS.DETECTOR_BACKEND,
+			normalization=_SETTINGS.MODEL_NAME,
+		)
+
+	_DeepFace.build_index(
+		model_name=_SETTINGS.MODEL_NAME,
+		detector_backend=_SETTINGS.DETECTOR_BACKEND,
+		align=True,
+	)
 
 
 ##def add_example_model_to_deepface(model) -> None:

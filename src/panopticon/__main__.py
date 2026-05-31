@@ -25,6 +25,6 @@ video_feed = VideoFeed(
 
 app = UserInterface(title="Test Window", video_feed=video_feed)
 
-app.add_modules(models=LOADED_MODULES)
+app.add_modules(LOADED_MODULES)
 
 app.start()
