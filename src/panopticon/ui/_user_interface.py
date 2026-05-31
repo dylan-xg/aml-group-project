@@ -6,7 +6,10 @@ from tkinter import ttk as _ttk
 
 from panopticon.modules import BaseModule as _BaseModule
 from panopticon.recognition import FaceRecognitionSystem as _FaceRecognitionSystem
-from panopticon.settings import SETTINGS as _SETTINGS
+from panopticon.settings import (
+	INPUT_TYPE_VIDEO as _INPUT_TYPE_VIDEO,
+	SETTINGS as _SETTINGS,
+)
 from panopticon.video_feed import VideoFeed as VideoFeed
 
 from ._button import Button as _Button
@@ -90,12 +93,13 @@ class UserInterface:
 			parent_frame=self.video_container, video_feed=video_feed
 		)
 
-		self.restart_button: _Button = _Button.simple_button(
-			input_panel=self.input_panel,
-			label="Restart Video",
-			order=5,
-			command=self.video_widget.restart_video,
-		)
+		if _SETTINGS.INPUT_SOURCE == _INPUT_TYPE_VIDEO:
+			self.restart_button: _Button = _Button.simple_button(
+				input_panel=self.input_panel,
+				label="Restart Video",
+				order=5,
+				command=self.video_widget.restart_video,
+			)
 
 		if auto_start:
 			self.video_widget.start_playback()
