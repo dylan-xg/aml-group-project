@@ -48,8 +48,13 @@ def run_enabled_modules(drawer: _Drawer, /) -> None:
 		results: list[str] = module.run_inference(images)
 
 		for result, face in zip(results, drawer.faces):
-			scale: float = 0.4 * _SETTINGS.TEXT_SCALE
-			face.texts.append(_Text(label=result, scale=scale))
+			face.texts.append(
+				_Text(
+					label=result,
+					scale=0.4 * _SETTINGS.TEXT_SCALE,
+					thickness=_SETTINGS.TEXT_THICKNESS,
+				)
+			)
 
 
 assert __package__ == "panopticon.modules", (

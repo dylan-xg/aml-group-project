@@ -123,8 +123,11 @@ class FaceRecognitionSystem:
 					else:
 						identity_label = str(best_match["identity"])
 
-		scale: float = 0.5 * _SETTINGS.TEXT_SCALE
-		identity: _Text = _Text(label=identity_label, scale=scale)
+		identity: _Text = _Text(
+			label=identity_label,
+			scale=0.5 * _SETTINGS.TEXT_SCALE,
+			thickness=_SETTINGS.TEXT_THICKNESS,
+		)
 		face: _Face = _Face(image=face_crop, box=box, texts=[identity])
 
 		return (face, distance)
@@ -194,12 +197,12 @@ class FaceRecognitionSystem:
 		known_faces: list[FaceDistancePair]
 		unknown_faces: list[FaceDistancePair]
 		known_faces, unknown_faces = faces
-		scale: float = 1 * _SETTINGS.TEXT_SCALE
 
 		if len(known_faces) > 1 and len(unknown_faces) > 1:
 			drawer.texts = _Text(
 				label="Registration: More than once face detected",
-				scale=scale,
+				scale=_SETTINGS.TEXT_SCALE,
+				thickness=_SETTINGS.TEXT_THICKNESS,
 				position=(5, frame_shape[0] - 10),
 			)
 			return
@@ -220,7 +223,12 @@ class FaceRecognitionSystem:
 				f"({cls._registration_face.count}/{_SETTINGS.NUM_REGISTRATION_IMAGES})"
 			)
 
-		drawer.texts = _Text(label=msg, scale=scale, position=(5, frame_shape[0] - 10))
+		drawer.texts = _Text(
+			label=msg,
+			scale=_SETTINGS.TEXT_SCALE,
+			thickness=_SETTINGS.TEXT_THICKNESS,
+			position=(5, frame_shape[0] - 10),
+		)
 
 	@classmethod
 	def _process_faces(cls, frame: _Frame, drawer: _Drawer) -> None:
@@ -236,9 +244,11 @@ class FaceRecognitionSystem:
 			else:
 				msg = "No faces detected"
 
-			scale: float = 0.5 * _SETTINGS.TEXT_SCALE
 			drawer.texts = _Text(
-				label=msg, scale=scale, position=(5, frame.shape[0] - 10)
+				label=msg,
+				scale=0.5 * _SETTINGS.TEXT_SCALE,
+				thickness=_SETTINGS.TEXT_THICKNESS,
+				position=(5, frame.shape[0] - 10),
 			)
 			return
 

@@ -114,6 +114,8 @@ class _Settings(_BaseSettings):
 
 	TEXT_SCALE: _Annotated[float, _Field(frozen=True, gt=0)] = 1
 
+	TEXT_THICKNESS: _Annotated[int, _Field(frozen=True, gt=0)] = 1
+
 	def input_source(self) -> int | _Path:
 		"""Util function to parse and validate the input source.
 
