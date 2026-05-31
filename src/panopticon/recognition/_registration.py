@@ -31,14 +31,17 @@ class NewFace:
 
 		# Unrecognised due to an empty database will return infinity;
 		# bypass bounds check to guarantee saving.
-		print(distance)
+		print(f"{distance:.4f}", end="")
 		if distance == float("inf") or (
 			_SETTINGS.REGISTRATION_THRESHOLD_MIN
 			<= distance
 			<= _SETTINGS.REGISTRATION_THRESHOLD_MAX
 		):
 			self.count += 1
+			print("..accepted")
 			self.register_to_database(frame)
+		else:
+			print("..rejected")
 
 		return self.count >= _SETTINGS.NUM_REGISTRATION_IMAGES
 
@@ -46,7 +49,7 @@ class NewFace:
 		"""Save the collected images to the database or local directory."""
 
 		if _SETTINGS.USE_POSTGRES_DB is True:
-			_register(name=self.name, frames=frame)
+			_register(name=f"{self.name}_{self.count}", frames=frame)
 		else:
 			save_dir: _Path = _Path(_SETTINGS.LOCAL_DATABASE_PATH) / self.name
 			save_dir.mkdir(parents=True, exist_ok=True)

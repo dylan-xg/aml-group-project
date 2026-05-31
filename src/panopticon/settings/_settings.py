@@ -97,17 +97,17 @@ class _Settings(_BaseSettings):
 	UNKNOWN_THRESHOLD: _Annotated[float, _Field(frozen=True, gt=0, lt=1)] = 0.9
 	"""The value used to determine if a face is not found in the database."""
 
-	NUM_REGISTRATION_IMAGES: _Annotated[int, _Field(frozen=True, gt=0)] = 5
+	NUM_REGISTRATION_IMAGES: _Annotated[int, _Field(frozen=True, gt=0)] = 10
 	"""How many images are needed to register a face."""
 
 	REGISTRATION_THRESHOLD_MIN: _Annotated[float, _Field(frozen=True, gt=0, lt=1)] = (
-		0.06
+		0.1
 	)
 	"""When registering a new face, what is the minimum acceptable distance
 	to consider the faces as the same person."""
 
 	REGISTRATION_THRESHOLD_MAX: _Annotated[float, _Field(frozen=True, gt=0, lt=1)] = (
-		0.12
+		0.25
 	)
 	"""When registering a new face, what is the maximum acceptable distance
 	to use when adding a new image."""
