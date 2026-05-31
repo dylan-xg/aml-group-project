@@ -2,8 +2,6 @@
 
 # IDEA Could analysis be run asynchronous from the framerate?
 
-from pathlib import Path as _Path
-
 from panopticon.drawer import (
 	Drawer as _Drawer,
 	Text as _Text,
@@ -12,19 +10,17 @@ from panopticon.typing import Frame as _Frame
 
 from ._base_module import BaseModule as _BaseModule
 from ._modules import (
-	AntiSpoofModule as AntiSpoofModule,
-	EmotionModule as EmotionModule,
+	AntiSpoofModule as _AntiSpoofModule,
+	EmotionModule as _EmotionModule,
+	GlassesDetectorModule as _GlassesDetectorModule,
 )
 
 
 def _load_all_modules() -> tuple[_BaseModule, ...]:
 	models: list[_BaseModule] = [
-		EmotionModule(
-			path=_Path("src/panopticon/model_weights/expression9_orig_longrun.keras")
-		).load_model(),
-		AntiSpoofModule(
-			path=_Path("src/panopticon/model_weights/anti_spoof_model.keras")
-		).load_model(),
+		_EmotionModule().load_model(),
+		_AntiSpoofModule().load_model(),
+		_GlassesDetectorModule().load_model(),
 	]
 	return tuple(models)
 
@@ -49,7 +45,7 @@ def run_enabled_modules(drawer: _Drawer, debug: bool = False) -> None:
 		if debug:
 			print(f"Running module: {model.name}")
 
-		results: list[str] = model.run_inference(faces=images)
+		results: list[str] = model.run_inference(images)
 
 		for result, face in zip(results, drawer.faces):
 			face.texts.append(_Text(result))

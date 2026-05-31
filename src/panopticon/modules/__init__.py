@@ -1,4 +1,5 @@
-"""A module is a model that will receive a batch of faces and will provide results depending on the type of model."""
+"""A module is a model that will receive a batch of faces and will provide results
+depending on the type of model."""
 
 from ._base_module import BaseModule as BaseModule
 from ._functions import (
@@ -8,4 +9,5 @@ from ._functions import (
 from ._modules import (
 	AntiSpoofModule as AntiSpoofModule,
 	EmotionModule as EmotionModule,
+	GlassesDetectorModule as GlassesDetectorModule,
 )

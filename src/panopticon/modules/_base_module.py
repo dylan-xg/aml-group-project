@@ -47,12 +47,12 @@ class BaseModule(_ABC):
 	img_length: int
 	img_size: tuple[int, int]
 	"""Don't set directly"""
-	path: _Path | None = None
+	path: _Path
 	enabled: bool = False
 	# Prevent this from being included in the dataclass initialiser.
 	model: _Functional | None = _field(default=None, init=False)
 
-	def toggle_enabled(self, callback: _ModuleStateCallback) -> None:
+	def toggle_enabled(self, callback: _ModuleStateCallback, /) -> None:
 		self.enabled = not self.enabled
 		callback(self.enabled)
 
@@ -61,11 +61,11 @@ class BaseModule(_ABC):
 		self.model = _models.load_model(filepath=self.path, compile=False)
 		return self
 
-	def preprocess_faces(self, faces: list[_Frame]) -> _tf.Tensor:
+	def preprocess_faces(self, face_list: list[_Frame], /) -> _tf.Tensor:
 		processed_faces: list[_tf.Tensor] = []
 
 		# Resize individually.
-		for face in faces:
+		for face in face_list:
 			tensor: _tf.Tensor = _tf.convert_to_tensor(face)
 
 			if len(tensor.shape) == 2:
@@ -83,8 +83,19 @@ class BaseModule(_ABC):
 
 		return faces_tensor
 
+	def _call_model(self, face_list: list[_Frame], /) -> _tf.Tensor:
+		"""Helper function for :func:`run_inference`."""
+		if self.model is None:
+			raise RuntimeError("Model not loaded.")
+
+		if len(face_list) == 0:
+			raise ValueError("Empty list passed.")
+
+		tensor: _tf.Tensor = self.preprocess_faces(face_list)
+		return self.model(tensor, training=False)
+
 	@_abstractmethod
-	def run_inference(self, faces: list[_Frame]) -> list[str]:
+	def run_inference(self, face_list: list[_Frame], /) -> list[str]:
 		"""A method to run model inference on the passed faces.
 
 		Parameters
