@@ -13,6 +13,8 @@ __pycache__/
 
 # Don't push the datasets onto the github
 /data/datasets/**
+# Hide local face db
+/data/faces_db/
 # Add a link to them for others to download locally in this file
 !/data/datasets/list.md
 
